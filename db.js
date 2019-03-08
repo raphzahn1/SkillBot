@@ -1,102 +1,89 @@
 
 
 module.exports = {
-    database: function (query){ 
+        database: function(query){
             var oracledb = require ('oracledb');
-            var check = undefined
-            var collection = []
-            var _ = require('underscore');
             const deasync = require('deasync');
+            var ergebnis
+            var check = undefined
             oracledb.getConnection( 
-            {
-            user : "system", // [username]
-            password : "Ip280595!", // [password]
-            connectString : "localhost/xe" // [hostname]:[port]/[DB service name]
-
-          },
-          function (err, connection)
-          {
-              if(err){
-                  connection.release(function(err) {
-                    if (err) console.error(err.message);
-                });
-                  return;
-              }
-              connection.execute(
-                  query, {}, //no binds
                 {
-                    resultSet: true,
-                    prefetchRows: 1000
-        
-                }
-              ,function(err, results){
-                  var rowsProcessed = 0;
-                  if (err){
-                      console.error(err.mesage);
-    
-                      return;
-      
-                  }
-    
-                  function processResultSet() {
-                         
-                        results.resultSet.getRows(1000, function(err, rows) {
-                            if (err) throw err;
-     
-                            if (rows.length) {
-                                
-                                rows.forEach(row => {
-                                    var rw
-                                     rowsProcessed += 1
-                                     collection.push(_.toArray(row));
-                                     console.log(collection[0][0], collection[0][1] )
-                                     rw = JSON.stringify(collection[0][0])
-                                     rw = JSON.parse(rw)
-                                     console.log("hallooooo"+rw)
-                                });
-                               
-     
-                                //do work on the row here
-                                try{
-                                processResultSet(); //try to get another row from the result set
-                                }catch(error){
-                                    console.error("Probleme im Inneren")
-                                }
-    
-                                return; //exit recursive function prior to closing result set
+                user : "system", // [username]
+                password : "Ip280595!", // [password]
+                connectString : "localhost/xe" // [hostname]:[port]/[DB service name]
+                },
+                function (err, connection)
+                {
+                        if(err){
+                            console.error(err.mesage);
+                            return;
+                        }
+            connection.execute(
+                query
+            ,function(err, result){
+                if (err){
+                    console.error(err.mesage);
+                    connection.close(
+                        function(err){
+                            if(err){
+                                console.error(err.mesage);
                             }
-                             check = "done"
-    
-                            
-                            console.log('Finish processing ' + rowsProcessed + ' rows');
-                            
-     
-                            results.resultSet.close(function(err) {
-                                if (err) console.error(err.message);
-     
-                                connection.release(function(err) {
-                                    if (err) console.error(err.message);
-                                });
-                            });
-    
-                        });
+                        }
+                      ); 
+                    return;
+
+                }
+                console.log(result.metaData[0].name)
+                console.log(result.rows[0][1]);
+                ergebnis = result
+                check = "done"
+                connection.close(
+                    function(err){
+                        if(err){
+                            console.error(err.mesage);
+                        }
                     }
-                    // ----- normale Response 
-    
-                 try{
-                    processResultSet();
-                    
-                 }catch(error){
-                    console.error("Probleme mit process Result")
-                 }
-                    
-                 
-                    
-              });
-    
-              return
-          });
-          deasync.loopWhile(() => check == undefined);
-          return collection
+                  ); 
+            });
+        });
+        deasync.loopWhile(() => check == undefined);
+        console.log(ergebnis)
+
+
+        // ***** Converting in simple JSON
+        var o = {}
+        counter = 0
+        console.log ("ergebnis rows counter"+ ergebnis.rows[counter])
+        
+        while(ergebnis.rows[counter]!= undefined){
+            var key = counter;
+            o[key]={}
+            
+            var index = 0
+            json={}
+            while (ergebnis.metaData[index] != undefined){
+                
+                // selector = metadata Schlüssel
+                // es werden Einträge erstellt
+                selector = ergebnis.metaData[index].name 
+                content = ergebnis.rows[counter][index ]
+                console.log("Sehr wichtig Content:"+content)
+                json[selector] = content
+                index += 1
+            }
+            o[key] = json
+            
+            //console.log(data)
+           
+            counter ++
         }
+        console.log('Die Datenbankausgabe:'+JSON.stringify(o))
+        
+        return o
+        },
+        
+            
+                
+        
+    
 };

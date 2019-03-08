@@ -13,15 +13,39 @@ app.post('/post', function (req, res) {
     res.setHeader('Content-Type', 'application/json')
     var intent = req.body.queryResult.intent.displayName
     var params = req.body.queryResult.parameters
-    console.log (params + intent)
-    //var query = tools.counter(params,intent)
-   // var db = database.database(query)
+    var session = req.body.session
+    console.log("Session"+ JSON.stringify(session))
+    console.log (JSON.stringify(params) + intent)
     var message = framework.getFramework(params,intent)
-   let responseObj = {
-    "fulfillmentText": message,
+    obj ={
+      "fulfillmentText": message,
+      "fulfillmentMessages": [
+        {
+          "card": {
+            "title": "card title",
+            "subtitle": "card text",
+            "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+            "buttons": [
+              {
+                "text": "button text",
+                "postback": "https://assistant.google.com/"
+              }
+            ]
+          }
+        }
+      ]
+      , "outputContexts": [  
+      {  
+        "name":session + "/contexts/" + "selection" ,
+        "lifespanCount":5,
+      "parameters":{  
+         "result": message ,
+        }
+        }
+     ]
   }
-  console.log ("Response Obj:" + responseObj)
-    res.json(responseObj);
+    //var context = tools.card()
+    res.json(obj);
     return res;
   
 });
