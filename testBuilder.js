@@ -3,7 +3,7 @@ tools = require('./tools')
 db = require('./db')
 var query = "Select * from mta_prog_erfa_zuo"
 var result = db.database(query)
-result = tools.converter2 (result)
+result = tools.converter (result)
 console.log("Output zum Ende:"+JSON.stringify(result))
 // result = tools.converter(result)
 //console.log("Konvertierte Ergebnis:" + result.metaData[0].name + result.rows[0][1])

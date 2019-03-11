@@ -6,21 +6,30 @@ module.exports = {
   // ********** tools *****
     // Name => ID
     preconditions: function (params){
-        if (undefined != params["mitarbeiter"]){
+        if (undefined != params["mitarbeiter"] && "" != params["mitarbeiter"]){
+            console.log("In mitarbeiter")
             var query = "Select mpr_mta_id from mitarbeiter_properties where mpr_erstellt_von = '" + params["mitarbeiter"] + "'" 
-            params["mitarbeiter"] = database.database(query)
+            var mitarbeiter = database.database(query)
+            console.log("Die Prekonditions:"+mitarbeiter[1].MPR_MTA_ID)
+            params["mitarbeiter"] = mitarbeiter[1].MPR_MTA_ID
             params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mpe_mta_id":'))
-            console.log("Mitarbeiter:" + params['mpe_mta_id'])
+            console.log("Mitarbeiter:" + JSON.stringify(params['mpe_mta_id']))
         } 
-        if (undefined != params["programmiersprache"]){
+        if (undefined != params["programmiersprache"] && "" != params["programmiersprache"]){
+                console.log("In programmiersprache")
                 var query = "Select prog_ID from programmiersprachen where prog_bezeichnung = '" + params["programmiersprache"] + "'" 
-                params["programmiersprache"] = database.database(query)
+                var programmiersprache = database.database(query)
+                console.log("Die Prekonditions:"+programmiersprache[1].PROG_ID)
+                params["programmiersprache"] = programmiersprache[1].PROG_ID
                 params = JSON.parse(JSON.stringify(params).split('"programmiersprache":').join('"prog_id":'))
                 console.log("Programmmiersprache:" + params['prog_id'])
         }
-        if (undefined != params["erfahrung"]){
+        if (undefined != params["erfahrung"] && "" != params["erfahrung"]){
+                console.log("In erfahrung")
                 var query = "Select erfa_id from erfahrung where erfa_bezeichnung = '" + params["erfahrung"] + "'" 
-                params["erfahrung"] = database.database(query)
+                var erfahrung = database.database(query)
+                console.log("Die Prekonditions:"+erfahrung[1].ERFA_ID)
+                params["erfahrung"] = erfahrung[1].ERFA_ID
                 params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"erfa_id":'))
                 console.log("Erfahrung:" + params['erfa_id'])
             }
@@ -30,13 +39,14 @@ module.exports = {
 
 
   // converter ID => Name
-    converter2:function(result){
+    converter:function(result){
       console.log("in converter")
       var counter = 1
        while(result[counter] != undefined){
               console.log("in Reihe")
                     var key 
                     var index 
+                    var validator
                   // Proframmiersprache
                   if(result[counter]['MPE_PROG_ID'] != undefined){
                     console.log('Eintrag gefunden Programmiersprache')
@@ -61,6 +71,7 @@ module.exports = {
                       console.log('Der Key'+key)
                       result[counter] = module.exports.mitarbeiter(counter,index,key,result)
                     } 
+
                     
                     // Für Framework Erfahrung und Mitarbeiter
                     if(result[counter]['MFE_FRAM_ID'] != undefined){
@@ -112,11 +123,16 @@ module.exports = {
                       console.log('Der Key'+key)
                       result[counter] = module.exports.mitarbeiter(counter,index,key,result)
                     }
-                      
+                    validator = Object.keys(result[counter])
+                     console.log("Der Validator:"+validator)
+                     result[counter] = module.exports.validator(result,validator,counter)
+     
+                    
+                
                 console.log('wieder raus')
        counter++
      }
-    return result
+     return result
     },
     counter: function (params,intent){
         console.log("hallo aus counter")
@@ -152,17 +168,6 @@ module.exports = {
         console.log("Der Output ist: " + output)
         return output
     },
-    cardmessage: function(params,result,intent){
-       // Der card builder
-              counter = 0
-              var cardentry
-              while(result[counter] != undefined){
-              data = result[counter]
-              cardentry +=  result[counter][1]+ "" + []
-              console.log ("Eintrag: "+counter + "ist " + JSON.stringify(parameters[counter]))
-              
-             }
-    },
 
     // *********** Die Methoden für den Converter*************
 
@@ -171,7 +176,7 @@ module.exports = {
       console.log('In PS DB-Eintrag gefunden')
       var i = 1
       while(programmiersprache[i] != undefined){
-        console.log(i+"Durchgang")
+        // console.log(i+"Durchgang")
         if (programmiersprache[i]['PROG_ID'] === key){
           console.log('der Key wurde gefunden')
           // Prog Bezeichnung finden
@@ -189,7 +194,7 @@ module.exports = {
       console.log('In PS DB-Eintrag gefunden')
       var i = 1
       while(frameworks[i] != undefined){
-        console.log(i+"Durchgang")
+        // console.log(i+"Durchgang")
         if (programmiersprache[i]['FRAM_ID'] === key){
           console.log('der Key wurde gefunden')
           // Prog Bezeichnung finden
@@ -208,7 +213,7 @@ module.exports = {
         console.log('In PS DB-Eintrag gefunden')
         var i = 1
         while(skills[i] != undefined){
-          console.log(i+"Durchgang")
+         // console.log(i+"Durchgang")
           if (skills[i]['SKIL_ID'] === key){
             console.log('der Key wurde gefunden')
             // Prog Bezeichnung finden
@@ -257,5 +262,33 @@ module.exports = {
         i++
         }
         return result[counter]
+    },
+    validator: function(result,validator,counter){
+      console.log("In validator")
+              
+                    index = 0
+                    while (validator[index]!= undefined){
+
+                    
+                    if('MPE_ERSTELLT_VON'  == validator[index] || 'MSE_ERSTELLT_VON'  == validator[index] || 'MFE_ERSTELLT_VON'  ==  validator[index])
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"ersteller":')) 
+
+                    if('MPE_ERSTELLT_AM' == validator[index] || 'MSE_ERSTELLT_AM' == validator[index] || 'MFE_ERSTELLT_AM' == validator[index]) 
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"erstelldatum":')) 
+ 
+                    if('MPE_GEPFLEGT_VON' == validator[index] || 'MSE_GEPFLEGT_VON' == validator[index] || 'MFE_GEPFLEGT_VON' == validator[index])
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"pfleger":')) 
+
+                    if('MPE_GEPFLEGT_AM' == validator[index] || 'MSE_GEPFLEGT_AM' == validator[index] || 'MFE_GEPFLEGT_AM' == validator[index])
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"pflegedatum":'))
+                    
+                    if('MPE_LEVEL'  == validator[index] || 'MSE_LEVEL'  == validator[index] || 'MFE_LEVEL'  == validator[index])
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"level":'))
+                    index++
+                  }
+              
+              return result[counter]
     }
+    
+    
 };

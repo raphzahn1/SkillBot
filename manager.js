@@ -1,36 +1,37 @@
 framework = require('./framework')
 skill = require ('./skill')
-erfahrung = require ('./erfahrung')
+erfahrung = require ('./programmiersprache')
 sonstiges = require ('./sonstiges')
 
 
 module.exports = {
-    cb: function(params,intent){
+    cb: function(req){
+        console.log("in manager")
         var query
-
+        var intent = req.body.queryResult.intent.displayName
+        var params = req.body.queryResult.parameters
+        var session = req.body.session
+        console.log (intent + params +session)
         // *** framework ***
         if(intent == "framework")
-            query = framework.Framework(params,intent);
-        else if(intent == "framework_FU")
-            query = framework.getFrameworkFU(params,intent);
-        else if (intent == "ID_framework")
-            query = framework.getFrameworkID(params,intent);
+            query = framework.getFramework(session,params,intent);
+        else if(intent == "framework_FU"){
+            entry = req.outputContexts.parameters.auswahl
+            var context = req.outputContexts.parameters.result[entry]
+            query = framework.getFrameworkFU(session,params,context,intent)
+        }
 
         // *** skill ***            
         else if(intent == "skill")
             query = skill.getSkill(params,intent);
         else if(intent == "skill_FU")
             query = skill.getSkillFU(params,intent);  
-        else if (intent == "ID_skill")
-            query = skill.getSkillID(params,intent);
 
         // *** erfahrung ***
         else if(intent == "erfahrung")
-            query = erfahrung.getErfahrung(params,intent);
+            query = programmiersprache.getProgrammiersprache(params,intent);
         else if(intent == "erfahrung_FU")
-            query = erfahrung.getErfahrungFU(params,intent);
-        else if (intent == "ID_erfahrung")
-            query = erfahrung.getErfahrungID(params,intent);
+            query = programmiersprache.getProgrammierspracheFU(params,intent);
 
         // ****  sonstiges ***
         else if (intent == "datei")
