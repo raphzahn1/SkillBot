@@ -1,47 +1,55 @@
 const express = require('express');
 var app = express();
 const bodyParser = require('body-parser');
-var manager = require('./manager');
+var tools = require('./tools');
+var database = require('./db');
+var framework = require('./framework')
 var port = 3000;
 
 app.use(bodyParser.json()); 
 
-// immer den Response Body als Json Format!
-app.post('/post', (req,res)=> {
-    if (!req.body) return res.sendStatus(400)
+app.post('/post', function (req, res) {
+  if (!req.body) return res.sendStatus(400)
     res.setHeader('Content-Type', 'application/json')
-    var intent = req.body.intent.displayName
+    var intent = req.body.queryResult.intent.displayName
     var params = req.body.queryResult.parameters
-    var query = "test"
-    query = manager.cb(params,intent)
-    let response = " ";
-    let responseObj={
-          "fullfillmentText":response,
-             "fullfillmentMessages":[{"text": {"text": [db]}}]
-            ,"source":""
-    }
-    console.log('Here is the response to dialogflow');
-    console.log(responseObj);
-        // gib reponse Objekt zurück
-        res.json(responseObj);
-        return res;
-})
-
-app.listen(port, function () {
-    console.log("Server is up and running...");
+    var session = req.body.session
+    console.log("Session"+ JSON.stringify(session))
+    console.log (JSON.stringify(params) + intent)
+    var message = framework.getFramework(params,intent)
+    obj ={
+      "fulfillmentText": message,
+      "fulfillmentMessages": [
+        {
+          "card": {
+            "title": "card title",
+            "subtitle": "card text",
+            "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+            "buttons": [
+              {
+                "text": "button text",
+                "postback": "https://assistant.google.com/"
+              }
+            ]
+          }
+        }
+      ]
+      , "outputContexts": [  
+      {  
+        "name":session + "/contexts/" + "selection" ,
+        "lifespanCount":5,
+      "parameters":{  
+         "result": message ,
+        }
+        }
+     ]
+  }
+    //var context = tools.card()
+    res.json(obj);
+    return res;
+  
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.listen(port, function () {
+  console.log('Example app listening on port 3000!');
+});

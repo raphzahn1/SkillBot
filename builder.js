@@ -14,15 +14,7 @@ module.exports={
               
             }
   
-        // Der card builder
-            // counter = 0
-            // var cardentry
-            // while(result[counter] != undefined){
-            //   data = result[counter]
-            //   cardentry +=  result[counter][1]+ "" + []
-            //   console.log ("Eintrag: "+counter + "ist " + JSON.stringify(parameters[counter]))
-              
-            // }
+       
             
             
   
