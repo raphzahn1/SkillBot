@@ -1,48 +1,91 @@
 var database = require('./db')
 var tools = require('./tools')
+var builder = require('./builder')
 module.exports = {
-    getFramework : function (params,intent){
+    getFramework : function (session,params,intent){
             console.log("Es geht in preconditions")
-            var query = tools.preconditions(params)
-            console.log("Preconditions: " + params['mpe_mta_id'])
+            var preconditions = tools.preconditions(params)
             console.log("Es geht in database")
-            var result = database.database(tools.counter(query,intent))
-            console.log("Ergebnis aus der Datenbank: " + result)
-            result = tools.converter(params)
-            console.log("Ergebnis nach Konvertierung:" + result)
+            var result = database.database(tools.counter(preconditions,intent))
+            console.log("Ergebnis aus der Datenbank: " + JSON.stringify(result))
+            result = tools.converter(result)
+            console.log("Ergebnis nach Konvertierung:" + JSON.stringify(result))
+            var outputContexts
+            if(result[1]== undefined){
+                message = "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
+                outputContexts = null
+            }else if(result[2] != undefined){
+                message = "Ich habe mehrere Einträge zu deiner Suche gefunden: \n\n "
+                message += builder.message (result,params)
+                outputContexts= [  
+                    {  
+                    "name":session + "/contexts/" + "selection" ,
+                    "lifespanCount":5,
+                    "parameters":{
+                        result
+                    }
+                }
+                ]
+            }else{
+                message = "Ich habe einen Eintrag gefunden"
+                outputContexts= [  
+                    {  
+                    "name":session + "/contexts/" + "selection" ,
+                    "lifespanCount":5,
+                    result
+                    }
+                ]
+            }
+            back = builder.builder(outputContexts,message)
+            console.log("Message ist gesetzt")
             // test von input
-            let message = "Fertiges Ergebnis: " + result 
-            return message;
-            
-                    
-            
+            return back;
     },
-    getFrameworkID: function (param){
-      if(param == "framework"){
-         return db.connection ("Select Fram_ID from frameworks where Fram_bezeichnung='"+ param.title + "'")
-      }
-     
-      
-
-  },
-  getFrameworkFU: function (parameters, connection){
-      for (var i = 0; parameters.length; i++){
-          param = parameters.param[i]
-          if(param != ""){
+  getFrameworkFU: function (session,params,context,intent){
+      var fulfillmentText = "Kein Problem, also lass uns mal sehen..."
+      var fulfillmentMessages
+      var message = {
+    }
+      for (var i = 0; params.length; i++){
+          param = params[i]
               if(param == "erstellt") {
-     
-              } else if(param == "bearbeitet") {
-             
-              } else if(param == "ersteller") {
-             
-              } else if(param == "bearbeiter") {
-             
-              } else if(param == "level") {
-             
-              } else if(param == "beschreibung"){
-                  db.connection ("Select Fram_ID from frameworks where Fram_bezeichnung='"+ param.title + "'")
+                fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
               } 
+              if(param == "bearbeitet") {
+                fulfillmentText += "Bearbeitet wurde er am" +context['pflegedatum']
+              } 
+              if(param == "ersteller") {
+                fulfillmentText += context['ersteller']+ "hat den Eintrag erstellt"
+              } 
+              if(param == "bearbeiter") {
+                fulfillmentText += context['bearbeiter'] + "hat den Eintrag bearbeitet"
+              } 
+              if(param == "level") {
+                fulfillmentText += context['mitarbeiter'] + "ist auf dem Level" +context['level']
+              } 
+              if(param == "beschreibung"){
+                fulfillmentMessages = [
+                       {
+                        "card": {
+                        "title": "card title",
+                            "subtitle": "card text",
+                             "imageUri": "https://taxprof.typepad.com/.a/6a00d8341c4eab53ef013485744a6a970c-popup",
+                            "buttons": [
+                                {
+                            "text": "button text",
+                            "postback": "https://de.wikipedia.org/" + context[framework]
+                            }
+                          ]
+                        }
+                      }
+                 ]
+                
+              } 
+              message["fulfillmentText"] = fulfillmentText
+              message["fulfillmentMessages"] = fulfillmentMessages
           }
+          
+          return message
       }
-  }, 
+      
 }

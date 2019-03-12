@@ -47,16 +47,16 @@ module.exports = {
             });
         });
         deasync.loopWhile(() => check == undefined);
-        console.log(ergebnis)
+        //console.log(ergebnis)
 
 
         // ***** Converting in simple JSON
         var o = {}
         counter = 0
-        console.log ("ergebnis rows counter"+ ergebnis.rows[counter])
+        //console.log ("ergebnis rows counter"+ ergebnis.rows[counter])
         
         while(ergebnis.rows[counter]!= undefined){
-            var key = counter;
+            var key = counter +1;
             o[key]={}
             
             var index = 0
@@ -67,7 +67,6 @@ module.exports = {
                 // es werden Einträge erstellt
                 selector = ergebnis.metaData[index].name 
                 content = ergebnis.rows[counter][index ]
-                console.log("Sehr wichtig Content:"+content)
                 json[selector] = content
                 index += 1
             }
@@ -77,8 +76,6 @@ module.exports = {
            
             counter ++
         }
-        console.log('Die Datenbankausgabe:'+JSON.stringify(o))
-        
         return o
         },
         
