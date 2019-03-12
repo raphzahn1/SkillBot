@@ -1,5 +1,7 @@
 var oracledb = require('oracledb');
- 
+const deasync = require('deasync');
+var ergebnis
+var check = undefined
   oracledb.getConnection( 
       {
       user : "system", // [username]
@@ -21,11 +23,16 @@ var oracledb = require('oracledb');
                 return;
 
             }
-            console.log(result.metaData)
-            console.log(result.rows);
+            console.log(result.metaData[0].name)
+            console.log(result.rows[0][1]);
+            ergebnis = result
+            check = "done"
             doRelease(connection);
         });
     });
+    deasync.loopWhile(() => check == undefined);
+    console.log(ergebnis.metaData[0].name)
+    console.log(ergebnis.rows[0][1]);
 
   function doRelease(connection)
   {

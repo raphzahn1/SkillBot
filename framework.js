@@ -3,14 +3,15 @@ var tools = require('./tools')
 module.exports = {
     getFramework : function (params,intent){
             console.log("Es geht in preconditions")
-            params = tools.preconditions(params)
-            // params['mitarbeiter'] = '2405'
+            var query = tools.preconditions(params)
             console.log("Preconditions: " + params['mpe_mta_id'])
             console.log("Es geht in database")
-            let input = database.database(tools.counter(params,intent))
-            console.log("Fertiges Ergebnis: " + input)
+            var result = database.database(tools.counter(query,intent))
+            console.log("Ergebnis aus der Datenbank: " + result)
+            result = tools.converter(params)
+            console.log("Ergebnis nach Konvertierung:" + result)
             // test von input
-            let message = "Die Daten zu RSCHULZ:" + input
+            let message = "Fertiges Ergebnis: " + result 
             return message;
             
                     
@@ -43,5 +44,5 @@ module.exports = {
               } 
           }
       }
-  }
+  }, 
 }
