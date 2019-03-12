@@ -1,6 +1,6 @@
 framework = require('./framework')
 skill = require ('./skill')
-erfahrung = require ('./programmiersprache')
+programmiersprache = require ('./programmiersprache')
 sonstiges = require ('./sonstiges')
 
 
@@ -16,9 +16,7 @@ module.exports = {
         if(intent == "framework")
             query = framework.getFramework(session,params,intent);
         else if(intent == "framework_FU"){
-            entry = req.outputContexts.parameters.auswahl
-            var context = req.outputContexts.parameters.result[entry]
-            query = framework.getFrameworkFU(session,params,context,intent)
+        
         }
 
         // *** skill ***            
@@ -27,12 +25,25 @@ module.exports = {
         else if(intent == "skill_FU")
             query = skill.getSkillFU(params,intent);  
 
-        // *** erfahrung ***
-        else if(intent == "erfahrung")
-            query = programmiersprache.getProgrammiersprache(params,intent);
-        else if(intent == "erfahrung_FU")
-            query = programmiersprache.getProgrammierspracheFU(params,intent);
+        // *** Programmiersprache ***
+        else if(intent == "programmiersprache"){
+        console.log("in Programmiersprache")
+            query = programmiersprache.getProgrammiersprache(session,params,intent)}
+        else if(intent == "programmiersprache_FU"){
+            console.log("in ProgrammierspracheFU")
+            var entry = req.body.queryResult.outputContexts[1].parameters.auswahl
+            console.log("Entry" + entry)
+            var context = req.body.queryResult.outputContexts[1].parameters.result
+            if (context == undefined)
+            var context = req.body.queryResult.outputContexts[0].parameters.result
 
+            console.log("context glesen")
+            var context = context[entry]
+            console.log("result ist ausgelesen")
+            var fu = params["anfragen_programmiersprachen"] 
+            console.log("Parameter in FU:" + JSON.stringify(fu))
+            query = programmiersprache.getProgrammierspracheFU(session,fu,context,intent);
+        }
         // ****  sonstiges ***
         else if (intent == "datei")
             query = sonstiges.getDatei(params,intent);
