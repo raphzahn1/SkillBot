@@ -22,9 +22,10 @@ module.exports={
           if(outputContexts != null){
             data["outputContexts"] = outputContexts
           }
+          console.log("Data aus builder:"+ JSON.stringify(data))
             return data
         },
-        message: function(result,params){
+     message: function(result,params){
           console.log("Es geht in Message")
           console.log ("Ohne Mitarbeiter"+JSON.stringify(params))
           var message =""
@@ -39,14 +40,14 @@ module.exports={
               message+= ", ein weiterer Eintrag  "
             }
             // ab hier die Inhalte
-            if(params["mitarbeiter"] == undefined && result[i].mitarbeiter != undefined)
+            if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
               message+= "zu " + result[i].mitarbeiter
 
-            if(params["programmiersprache"] == undefined && result[i].programmiersprache != undefined)
-              message+= "mit der Programmiersprache " + result[i].programmiersprache
+            if(params["programmiersprache"] == undefined ||  params["programmiersprache"] == "" && result[i].programmiersprache != undefined )
+              message+= " mit der Programmiersprache " + result[i].programmiersprache
 
-            if(params["erfahrung"] == undefined && result[i].erfahrung != undefined)
-              message+= "mit dem Erfahrungslevel " + result[i].erfahrung
+            if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+              message+= " auf dem Erfahrungslevel " + result[i].erfahrung
             
             
 
@@ -54,6 +55,9 @@ module.exports={
             i++
           }
           return message
+        },
+        compare: function(array,params){
+
         }
     //   cardmessage: function(params,result,intent){
     //     // Der card builder

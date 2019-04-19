@@ -5,35 +5,71 @@ var database = require('./db');
 module.exports = {
   // ********** tools *****
     // Name => ID
-    preconditions: function (params){
+    preconditions: function (params,intent){
         if (undefined != params["mitarbeiter"] && "" != params["mitarbeiter"]){
             console.log("In mitarbeiter")
             var query = "Select mpr_mta_id from mitarbeiter_properties where mpr_erstellt_von = '" + params["mitarbeiter"] + "'" 
             var mitarbeiter = database.database(query)
             console.log("Die Prekonditions:"+mitarbeiter[1].MPR_MTA_ID)
             params["mitarbeiter"] = mitarbeiter[1].MPR_MTA_ID
+
+            if (intent == "framework")
+            params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mfe_mta_id":'))
+
+            if (intent == "programmiersprache")
             params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mpe_mta_id":'))
-            console.log("Mitarbeiter:" + JSON.stringify(params['mpe_mta_id']))
+
+            if (intent == "skill")
+            params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mse_mta_id":'))
         } 
+        
+          if (undefined != params["erfahrung"] && "" != params["erfahrung"]){
+            console.log("In erfahrung")
+            var query = "Select erfa_id from erfahrung where erfa_bezeichnung = '" + params["erfahrung"] + "'" 
+            var erfahrung = database.database(query)
+            console.log("Die Prekonditions:"+erfahrung[1].ERFA_ID)
+            params["erfahrung"] = erfahrung[1].ERFA_ID
+
+            if (intent == "framework")
+            params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"mfe_erfa_id":'))
+
+            if (intent == "programmiersprache")
+            params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"mpe_erfa_id":'))
+
+            if (intent == "skill")
+            params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"mse_erfa_id":'))
+           
+        }
+
         if (undefined != params["programmiersprache"] && "" != params["programmiersprache"]){
                 console.log("In programmiersprache")
                 var query = "Select prog_ID from programmiersprachen where prog_bezeichnung = '" + params["programmiersprache"] + "'" 
                 var programmiersprache = database.database(query)
                 console.log("Die Prekonditions:"+programmiersprache[1].PROG_ID)
                 params["programmiersprache"] = programmiersprache[1].PROG_ID
-                params = JSON.parse(JSON.stringify(params).split('"programmiersprache":').join('"prog_id":'))
-                console.log("Programmmiersprache:" + params['prog_id'])
+                params = JSON.parse(JSON.stringify(params).split('"programmiersprache":').join('"mpe_prog_id":'))
+                console.log("Programmmiersprache:" + params['mpe_prog_id'])
         }
-        if (undefined != params["erfahrung"] && "" != params["erfahrung"]){
-                console.log("In erfahrung")
-                var query = "Select erfa_id from erfahrung where erfa_bezeichnung = '" + params["erfahrung"] + "'" 
-                var erfahrung = database.database(query)
-                console.log("Die Prekonditions:"+erfahrung[1].ERFA_ID)
-                params["erfahrung"] = erfahrung[1].ERFA_ID
-                params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"erfa_id":'))
-                console.log("Erfahrung:" + params['erfa_id'])
-            }
-        // Hier noch für Framework und Kompetenzen einfügen!!
+
+        if (undefined != params["framework"] && "" != params["framework"]){
+                console.log("In Framework")
+                var query = "Select fram_ID from frameworks where fram_bezeichnung = '" + params["programmiersprache"] + "'" 
+                var framework = database.database(query)
+                console.log("Die Prekonditions:"+framework[1].FRAM_ID)
+                params["framework"] = framework[1].FRAM_ID
+                params = JSON.parse(JSON.stringify(params).split('"framework":').join('"mfe_fram_id":'))
+                console.log("Framework:" + params['mfe_fram_id'])
+        }
+
+      if (undefined != params["skill"] && "" != params["skill"]){
+          console.log("In skills")
+          var query = "Select skill_id from skills where skil_bezeichnung = '" + params["skill"] + "'" 
+          var skill = database.database(query)
+          console.log("Die Prekonditions:"+skill[1].SKIL_ID)
+          params["skill"] = skill[1].SKIL_ID
+          params = JSON.parse(JSON.stringify(params).split('"skill":').join('"mse_skil_id":'))
+          console.log("SKill:" + params['mse_skil_id'])
+      }     
           return params
     },
 

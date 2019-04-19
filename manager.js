@@ -1,7 +1,7 @@
 framework = require('./framework')
 skill = require ('./skill')
 programmiersprache = require ('./programmiersprache')
-sonstiges = require ('./sonstiges')
+extra = require ('./extra')
 
 
 module.exports = {
@@ -11,10 +11,24 @@ module.exports = {
         var intent = req.body.queryResult.intent.displayName
         var params = req.body.queryResult.parameters
         var session = req.body.session
-        console.log (intent + params +session)
+        console.log (intent + JSON.stringify(params) +session)
+
+        // *** auswahl bei mehreren unterschiedlichen intents **
+          if(intent == "info_auswahl-funktion" || "eintragen_auswahl")
+             query = extra.getFunction(params,session)
+
+        //*** speichern von Daten **
+         if(intent == "speichern_yes")
+                query = extra.save(req,session)
+
+        //*** speichern von Daten **
+        if(intent == "senden")
+        query = extra.send(req,session)
+
         // *** framework ***
         if(intent == "framework")
             query = framework.getFramework(session,params,intent);
+
         else if(intent == "framework_FU"){
         
         }
@@ -22,31 +36,23 @@ module.exports = {
         // *** skill ***            
         else if(intent == "skill")
             query = skill.getSkill(params,intent);
+
         else if(intent == "skill_FU")
             query = skill.getSkillFU(params,intent);  
 
         // *** Programmiersprache ***
-        else if(intent == "programmiersprache"){
-        console.log("in Programmiersprache")
-            query = programmiersprache.getProgrammiersprache(session,params,intent)}
-        else if(intent == "programmiersprache_FU"){
-            console.log("in ProgrammierspracheFU")
-            var entry = req.body.queryResult.outputContexts[1].parameters.auswahl
-            console.log("Entry" + entry)
-            var context = req.body.queryResult.outputContexts[1].parameters.result
-            if (context == undefined)
-            var context = req.body.queryResult.outputContexts[0].parameters.result
+        else if(intent == "programmiersprache")
+            query = programmiersprache.getProgrammiersprache(session,params,intent)
 
-            console.log("context glesen")
-            var context = context[entry]
-            console.log("result ist ausgelesen")
-            var fu = params["anfragen_programmiersprachen"] 
-            console.log("Parameter in FU:" + JSON.stringify(fu))
-            query = programmiersprache.getProgrammierspracheFU(session,fu,context,intent);
+        else if (intent == "programmiersprache_vergleich")
+            query = programmiersprache.getProgrammierspracheVS(session,params,intent)
+
+        else if(intent == "programmiersprache_FU"){
+            query = programmiersprache.getProgrammierspracheFU(req,session,params);
         }
         // ****  sonstiges ***
         else if (intent == "datei")
-            query = sonstiges.getDatei(params,intent);
+            query = extra.getData(params,intent);
 
         return query
     }
