@@ -6,6 +6,7 @@ module.exports = {
   // ********** tools *****
     // Name => ID
     preconditions: function (params,intent){
+      console.log("In Preconditions")
         if (undefined != params["mitarbeiter"] && "" != params["mitarbeiter"]){
             console.log("In mitarbeiter")
             var query = "Select mpr_mta_id from mitarbeiter_properties where mpr_erstellt_von = '" + params["mitarbeiter"] + "'" 
@@ -25,6 +26,7 @@ module.exports = {
         
           if (undefined != params["erfahrung"] && "" != params["erfahrung"]){
             console.log("In erfahrung")
+            console.log("Erfahrung = " + JSON.stringify(params.erfahrung))
             var query = "Select erfa_id from erfahrung where erfa_bezeichnung = '" + params["erfahrung"] + "'" 
             var erfahrung = database.database(query)
             console.log("Die Prekonditions:"+erfahrung[1].ERFA_ID)

@@ -1,4 +1,7 @@
 var builder = require('./builder')
+var tools = require('./tools')
+var database = require('./db')
+
 module.exports = {
     getFunction : function(params,session){
         console.log("in getFunction")
@@ -116,7 +119,27 @@ module.exports = {
             console.log("Nachricht gesendet",info.messageId)
         })
         
-    } 
+    },
+    insert : function(name,params,intent){
+        console.log("In Insert aus Extra")
+        var query
+        if (intent == "eintragen_programmiersprache"){
+            var typ = "programmiersprache"
+            params = tools.preconditions(params,typ)
+            // ACHTUNG! Datum muss noch angepasst werden
+            //query = "Insert into mta_prog_erfa_zuo (mpe_id,mpe_prog_id,mpe_erfa_id,mpe_erstellt_von,mpe_erstellt_am,mpe_gepflegt_von,mpe_gepflegt_am,mpe_level,mpe_mta_id) values ('333','"+params.mpe_prog_id+"','"+params.mpe_erfa_id+"','"+name+"','01.05.2019','"+name+"','01.05.2019','2','"+params.mpe_mta_id+"');"
+        }else if (intent == "eintragen_framework"){
+            var typ = "framework"
+            params = tools.preconditions(params,typ)
+            query = "Insert into mta_fram_erfa_zuo (mfe_fram_id,mfe_erfa_id,mfe_erstellt_von,mfe_erstellt_am,mfe_gepflegt_von,mfe_gepflegt_am,mfe_mta_id) values ("+params.mfe_prog_id+","+params.mfe_erfa_id+","+name+","+Date.now.stringify+","+params.mfe_mta_id+");"
+        }else if(intent == "eintragen_skill"){
+            var typ = "skill"
+            params = tools.preconditions(params,typ)
+            query = "Insert into mta_skil_erfa_zuo (mse_skil_id,mse_erfa_id,mse_erstellt_von,mse_erstellt_am,mse_gepflegt_von,mse_gepflegt_am,mse_mta_id) values ('"+params.mfe_prog_id+"','"+params.mfe_erfa_id+","+name+","+Date.now.stringify+","+params.mfe_mta_id+");"
+        }
+        console.log("Der Query vor dem Datenbankeintrag:" + query)
+        database.insert(query)
+    }
     
 
 

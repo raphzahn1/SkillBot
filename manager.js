@@ -7,11 +7,12 @@ extra = require ('./extra')
 module.exports = {
     cb: function(req){
         console.log("in manager")
-        var query
+        var query = null
         var intent = req.body.queryResult.intent.displayName
         var params = req.body.queryResult.parameters
         var session = req.body.session
-        console.log (intent + JSON.stringify(params) +session)
+        
+        console.log (intent + JSON.stringify(params) +session )
 
         // *** auswahl bei mehreren unterschiedlichen intents **
           if(intent == "info_auswahl-funktion" || "eintragen_auswahl")
@@ -50,9 +51,14 @@ module.exports = {
         else if(intent == "programmiersprache_FU"){
             query = programmiersprache.getProgrammierspracheFU(req,session,params);
         }
-        // ****  sonstiges ***
-        else if (intent == "datei")
-            query = extra.getData(params,intent);
+
+        // *** Eintrag ***
+        else if(intent == "eintragen_programmiersprache"){
+           // var name = req.body.outputContexts[2].parameters.user
+            var name = "Tester"
+            console.log("Name: "+ name)
+            query = extra.insert(name,params,intent);
+        } 
 
         return query
     }
