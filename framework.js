@@ -80,6 +80,11 @@ module.exports = {
                       }
                  ]
                 
+              }
+              if (param == "kommentare"){
+                fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: /n"+context['kommentar']
+                message["fulfillmentText"] = fulfillmentText
+                
               } 
               message["fulfillmentText"] = fulfillmentText
               message["fulfillmentMessages"] = fulfillmentMessages

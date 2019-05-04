@@ -207,7 +207,9 @@ module.exports = {
         return output
     },
 
-    // *********** Die Methoden für den Converter*************
+    // *********** Die Methoden für den Converter *************
+    
+    // Wandelt keys in konkrete Namen um 
 
     programmiersprache : function (counter,index,key,result){
       var programmiersprache = database.database("Select prog_id,prog_bezeichnung from programmiersprachen")
@@ -301,6 +303,7 @@ module.exports = {
         }
         return result[counter]
     },
+    // *** Wandelt SPaltenschlüssel in Namen um
     validator: function(result,validator,counter){
       console.log("In validator")
               
@@ -322,6 +325,10 @@ module.exports = {
                     
                     if('MPE_LEVEL'  == validator[index] || 'MSE_LEVEL'  == validator[index] || 'MFE_LEVEL'  == validator[index])
                     result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"level":'))
+
+                    if('MPE_KOMMENTAR'  == validator[index] || 'MSE_KOMMENTAR'  == validator[index] || 'MFE_KOMMENTAR'  == validator[index])
+                    result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+validator[index]+'":').join('"kommentar":'))
+
                     index++
                   }
               

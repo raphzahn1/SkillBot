@@ -99,7 +99,8 @@ module.exports = {
         var param
         for (var key in fu){
                 param = fu[key]
-                console.log(param + key)
+                console.log("Parameter "+ param+ "und Key:" + key)
+                // Hier noch Kommentare zurückgeben 
                 if(param == "erstellt") {
                   fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
                   message["fulfillmentText"] = fulfillmentText
@@ -137,6 +138,12 @@ module.exports = {
                         }
                    ]
                 } 
+                if (param == "kommentar"){
+                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: /n"+context['kommentar']
+                  message["fulfillmentText"] = fulfillmentText
+                  
+                }
+
 
                  message["outputContexts"] = [  
                    {  
