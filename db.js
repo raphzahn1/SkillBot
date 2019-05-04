@@ -2,6 +2,7 @@
 
 module.exports = {
         database: function(query){
+            console.log("Es geht in Datenbankabfrage")
             var oracledb = require ('oracledb');
             const deasync = require('deasync');
             var ergebnis
@@ -78,9 +79,27 @@ module.exports = {
         }
         return o
         },
-        
-            
-                
-        
-    
-};
+        insert: async function(query){
+            console.log("Es geht in Datenbankeintrag")
+            const oracledb = require('oracledb');
+            let connection, result;
+            try {
+                connection = await oracledb.getConnection(
+                  {user: "system", password: "Ip280595!", connectString: "localhost/xe"});
+                console.log("Connection steht")
+                result = await connection.execute(query); 
+                console.log('Rows inserted: ' + result.rowsAffected);
+             
+              } catch (err) {
+                console.error(err);
+              } finally {
+                if (connection) {
+                  try {
+                await connection.close();
+                  } catch (err) {
+                console.error(err);
+                  }
+                }
+              }
+    }
+}

@@ -15,6 +15,7 @@
     "deasync": "^0.1.14",
     "express": "^4.16.2",
     "https": "^1.0.0",
+    "nodemailer": "^5.1.1",
     "oracledb": "^3.1.1",
     "underscore": "^1.9.1",
     "unirest": "^0.5.1"

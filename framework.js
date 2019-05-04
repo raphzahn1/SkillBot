@@ -15,7 +15,7 @@ module.exports = {
                 message = "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
                 outputContexts = null
             }else if(result[2] != undefined){
-                message = "Ich habe mehrere Einträge zu deiner Suche gefunden: \n\n "
+                message = "Ich habe mehrere Einträge zu Frameworks gefunden: \n\n "
                 message += builder.message (result,params)
                 outputContexts= [  
                     {  
@@ -79,6 +79,11 @@ module.exports = {
                         }
                       }
                  ]
+                
+              }
+              if (param == "kommentare"){
+                fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: /n"+context['kommentar']
+                message["fulfillmentText"] = fulfillmentText
                 
               } 
               message["fulfillmentText"] = fulfillmentText
