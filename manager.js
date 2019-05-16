@@ -19,8 +19,9 @@ module.exports = {
           if(intent == "info_auswahl-funktion" || "eintragen_auswahl" || "update_auswahl-funktion")
              query = extra.getFunction(params,session)
 
-        if(intent == "update_auswahl-funktion")
-        query = extra.getUpdate(params,session,context)
+        //***  wird nicht  mehr benötigt 
+        //if(intent == "update_auswahl-funktion")
+        //query = extra.getUpdate(params,session,context)
 
 
 
@@ -49,7 +50,7 @@ module.exports = {
 
         // *** Programmiersprache ***
         else if(intent == "programmiersprache")
-            query = programmiersprache.getProgrammiersprache(session,params,intent)
+            query = programmiersprache.getProgrammiersprache(session,params,intent,req)
 
         else if (intent == "programmiersprache_vergleich")
             query = programmiersprache.getProgrammierspracheVS(session,params,intent)
@@ -64,7 +65,7 @@ module.exports = {
            // var name = req.body.outputContexts[2].parameters.user
             var name = "Tester"
             console.log("Name: "+ name)
-            query = extra.insert(name,req,intent,session);
+            query = extra.insert(name,req,session);
         } 
 
         return query

@@ -2,7 +2,7 @@ var database = require('./db')
 var tools = require('./tools')
 var builder = require('./builder')
 module.exports = {
-    getFramework : function (session,params,intent){
+    getFramework : function (session,params,intent,req){
             console.log("In Frameworks")
             console.log("Es geht in preconditions")
             var preconditions = tools.preconditions(params,intent)
@@ -16,47 +16,124 @@ module.exports = {
             var anzahl
             var message =""
             intent = "framework"
+             // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
+            var i = 1
+            var context = ""
+            var outputContexts = req.body.queryResult.outputContexts
+            console.log("Der Kontext aus Programmiersprache: "+JSON.stringify(req.body.queryResult.outputContexts))
+            console.log("Unser Vergleichskontext:"+ session + "/contexts/update")
+            console.log("Die Länge des Kontext" +outputContexts.length)
+
+            for ( var i=1; i < outputContexts.length; i++ ) {
+              if (outputContexts[i].name == session + "/contexts/update" || session + "/contexts/info" ) {
+                var context = outputContexts[i].name ; // "entry" is now the entry you were looking for
+                // ... do something useful with "entry" here...
+              }
+              
+            }
+            console.log("Kontext nach Konvertierung :" + context)
+              
+
+            console.log("Weiter in den Abgleich")
+          
             if(result[1]== undefined){
                 back["fulfillmentText"] = "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
-    
+                back["outputContexts"]= [  
+                  {  
+                  "name":session + "/contexts/" + "framework" ,
+                  "lifespanCount":1
+                }
+              ]
             }else if(result[2] != undefined){
                 anzahl = 2
                 message = "Ich habe mehrere Einträge zu deiner Suche gefunden: \n\n "
                 message += builder.message (result,params,anzahl,intent)
-                message += "Zu welchen Eintrag möchtest du genauere Informationen?"
-                back["fulfillmentText"]=message
+                  // Unterschiedliche Inhalte für -> insert
+                if(context == session + "/contexts/info"){
+                  message += "Zu welchen Eintrag möchtest du genauere Informationen?"
+                if(context)
                 back["outputContexts"]= [  
                     {  
-                    "name":session + "/contexts/" + "framework_fu" ,
+                    "name":session + "/contexts/" + "programmiersprache_fu" ,
                     "lifespanCount":2,
                     "parameters":{
                         result
                     }
                 }
                 ]
+                }
+
+                 // Unterschiedliche Inhalte für -> update
+            if(context == session + "/contexts/update"){
+              message += "Bitte, wähle den Eintrag aus, für den du das Update durchführen möchtest?"
+            if(context)
+            back["outputContexts"]= [  
+                {  
+                "name":session + "/contexts/" + "update" ,
+                "lifespanCount":2,
+                "parameters":{
+                    result
+                }
+            }
+            ]
+            }
+
+
+            back["payload"]={"slack":{"text": message}}
+            back["fulfillmentText"]=message
+        
             }else{
                 anzahl = 1
                 message += "Ich habe einen Eintrag "
                 message += builder.message (result,params,anzahl,intent)
-                message += "gefunden "
-                back["fulfillmentText"] = message
-                back["outputContexts"]= [  
-                    {  
-                    "name":session + "/contexts/" + "framework_fu" ,
-                    "lifespanCount":5,
-                    "parameters":{
-                      result
-                  }
-                    },
-                    {  
-                      "name":session + "/contexts/" + "single" ,
-                      "lifespanCount":1,
-                    },
-                    {  
-                      "name":session + "/contexts/" + "auswahl" ,
-                      "lifespanCount":1,
-                    }
-                ]
+                
+           // Unterschiedliche Inhalte für -> insert
+           if(context == session + "/contexts/insert"){
+            message += "gefunden. Was möchtest du zu dem Eintrag wissen?"
+            
+            back["outputContexts"]= [  
+                {  
+                "name":session + "/contexts/" + "framework_fu" ,
+                "lifespanCount":7,
+                "parameters":{
+                  result
+              }
+                },
+                {  
+                  "name":session + "/contexts/" + "auswahl" ,
+                  "lifespanCount":1,
+                  "parameters":{
+                    "auswahl":1
+                }
+                }
+              ]
+             }
+
+             // Unterschiedliche Inhalte für -> update
+           if(context == session + "/contexts/update"){
+            message += "gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein?"
+            
+            back["outputContexts"]= [  
+                {  
+                "name":session + "/contexts/" + "update" ,
+                "lifespanCount":7,
+                "parameters":{
+                  result
+              }
+                },
+                {  
+                  "name":session + "/contexts/" + "auswahl" ,
+                  "lifespanCount":1,
+                  "parameters":{
+                    "auswahl":1
+                }
+                }
+              ]
+             }
+          back["fulfillmentText"] = message
+      
+  
+  
             }
             console.log("Message ist gesetzt")
             // test von input
