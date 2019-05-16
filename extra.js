@@ -1,21 +1,74 @@
 var builder = require('./builder')
 var tools = require('./tools')
 var database = require('./db')
+var date = require('date-and-time')
 
 module.exports = {
     getFunction : function(params,session){
         console.log("in getFunction")
            // context = params["auswahl_funktion"]
-            for (var key in params)
+            for (var key in params){
+                if (key == "auswahl_funktion")
                 context = params[key]
+
+                if (key == "anfragen_auskunft")
+                context = params[key]
+
+
+            }
+
+                
           // var message = "Gut also " +context+ ": Du kannst mich zu einer bestimmten Fähigkeit, einem bestimmten Mitarbeiter oder einem bestimmten Erfahrlevel befragen "
             var outputContexts= [  
                 {  
                 "name":session + "/contexts/" + context ,
                 "lifespanCount":1,
                 
-            }
+            },
             ]
+            var message = builder.builder(outputContexts,message)
+        
+        return message
+    },getUpdate : function(params,session){
+        console.log("in getFunction")
+           // context = params["auswahl_funktion"]
+            for (var key in params){
+                if (key == "auswahl_funktion")
+                context = params[key]
+
+                if (key == "anfragen_auskunft")
+                context = params[key]
+
+
+            }
+        
+        var params
+        var key
+        var i = 1
+
+        // Hier werden jetzt die Daten aus dem Letzten Intent gesucht, die eingetragen werden sollen
+
+        while (params == undefined){
+            key = req.body.queryResult.outputContexts[i].name
+
+            if(key == session + "/contexts/programmiersprache_fu" || session + "/contexts/framework_fu"||session + "/contexts/skills_fu")
+            params = req.body.queryResult.outputContexts[i].parameters
+
+            i++
+            }
+
+                
+          // var message = "Gut also " +context+ ": Du kannst mich zu einer bestimmten Fähigkeit, einem bestimmten Mitarbeiter oder einem bestimmten Erfahrlevel befragen "
+            var outputContexts= [  
+                {  
+                "name":session + "/contexts/" + context ,
+                "lifespanCount":1,
+                
+            },{
+                "name":session + "/contexts/update" ,
+                "lifespanCount":1, 
+                params
+            }]
             var message = builder.builder(outputContexts,message)
         
         return message
@@ -120,25 +173,58 @@ module.exports = {
         })
         
     },
-    insert : function(name,params,intent){
+    insert : function(name,req,intent,session){
         console.log("In Insert aus Extra")
+        date = date.format(new Date(),'DD.MM.YYYY')
+        var context = session + "/contexts/insert"
         var query
-        if (intent == "eintragen_programmiersprache"){
+        var values
+        var params
+        var key
+        var i = 1
+
+        // Hier werden jetzt die Daten aus dem Letzten Intent gesucht, die eingetragen werden sollen
+
+        while (params == undefined){
+            key = req.body.queryResult.outputContexts[i].name
+
+            if(key == context)
+            params = req.body.queryResult.outputContexts[i].parameters
+
+            i++
+            }
+        console.log("Prams Programmiersprache für den Check" + params.programmiersprache)
+        
+
+        // ACHTUNG! Datum muss noch angepasst werden
+
+        /*
+            -> Level muss angepasst werden
+            -> ID anpassen
+            -> wenn funktioniert auf framework und skill übertragen ACHTUNG!!!!!!!
+        */ 
+
+        if (params.programmiersprache != undefined){
             var typ = "programmiersprache"
             params = tools.preconditions(params,typ)
-            // ACHTUNG! Datum muss noch angepasst werden
-            //query = "Insert into mta_prog_erfa_zuo (mpe_id,mpe_prog_id,mpe_erfa_id,mpe_erstellt_von,mpe_erstellt_am,mpe_gepflegt_von,mpe_gepflegt_am,mpe_level,mpe_mta_id) values ('333','"+params.mpe_prog_id+"','"+params.mpe_erfa_id+"','"+name+"','01.05.2019','"+name+"','01.05.2019','2','"+params.mpe_mta_id+"');"
-        }else if (intent == "eintragen_framework"){
+            query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
+            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+
+            // Noch nicht fertig!!!!!!!!!
+        }else if (params.framework != undefined){
             var typ = "framework"
             params = tools.preconditions(params,typ)
-            query = "Insert into mta_fram_erfa_zuo (mfe_fram_id,mfe_erfa_id,mfe_erstellt_von,mfe_erstellt_am,mfe_gepflegt_von,mfe_gepflegt_am,mfe_mta_id) values ("+params.mfe_prog_id+","+params.mfe_erfa_id+","+name+","+Date.now.stringify+","+params.mfe_mta_id+");"
-        }else if(intent == "eintragen_skill"){
+            query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
+            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+        }else if(params.skill != undefined){
             var typ = "skill"
             params = tools.preconditions(params,typ)
-            query = "Insert into mta_skil_erfa_zuo (mse_skil_id,mse_erfa_id,mse_erstellt_von,mse_erstellt_am,mse_gepflegt_von,mse_gepflegt_am,mse_mta_id) values ('"+params.mfe_prog_id+"','"+params.mfe_erfa_id+","+name+","+Date.now.stringify+","+params.mfe_mta_id+");"
+            query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
+            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
         }
-        console.log("Der Query vor dem Datenbankeintrag:" + query)
-        database.insert(query)
+        console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
+        console.log("value 0 einzelnes Experiment" + values[0])
+        database.insert(query,values)
     }
     
 

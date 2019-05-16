@@ -14,12 +14,16 @@ module.exports = {
         var outputContexts
         var back = {
         }
+        var anzahl
+        var message
+        intent = "programmiersprache"
         if(result[1]== undefined){
             back["fulfillmentText"] = "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
 
         }else if(result[2] != undefined){
+            anzahl = 2
             message = "Ich habe mehrere Einträge zu deiner Suche gefunden: \n\n "
-            message += builder.message (result,params)
+            message += builder.message (result,params,anzahl,intent)
             message += "Zu welchen Eintrag möchtest du genauere Informationen?"
             back["fulfillmentText"]=message
             back["outputContexts"]= [  
@@ -31,18 +35,31 @@ module.exports = {
                 }
             }
             ]
+            back["payload"]={"slack":{"text": message}}
         }else{
-            back["fulfillmentText"] = "Ich habe einen Eintrag gefunden"
-            back["outputContexts"]= [  
-                {  
-                "name":session + "/contexts/" + "programmiersprache_fu" ,
-                "lifespanCount":5,
-                "parameters":{
-                  result
+          anzahl = 1
+          message += "Ich habe einen Eintrag "
+          message += builder.message (result,params,anzahl,intent)
+          message += "gefunden "
+          back["fulfillmentText"] = message
+          back["outputContexts"]= [  
+              {  
+              "name":session + "/contexts/" + "framework_fu" ,
+              "lifespanCount":7,
+              "parameters":{
+                result
+            }
+              }, {  
+                "name":session + "/contexts/" + "single" ,
+                "lifespanCount":1,
+              },
+              {  
+                "name":session + "/contexts/" + "auswahl" ,
+                "lifespanCount":1,
               }
-                }
-            ]
-        }
+          ]
+
+      }
         console.log("Message ist gesetzt")
         // test von input
         return back;
@@ -90,7 +107,7 @@ module.exports = {
             console.log("context glesen" + JSON.stringify(context))
             var context = context[entry]
             console.log("result ist ausgelesen" + JSON.stringify(context) )
-            var fu = params["anfragen_programmiersprachen"] 
+            var fu = params["anfragen_auskunft"] 
         console.log("Parameter in ProgrammierspracheFU:" + JSON.stringify(fu) + context["programmiersprache"])
         var fulfillmentText = "Also, lass uns mal sehen..."
         var message = {
