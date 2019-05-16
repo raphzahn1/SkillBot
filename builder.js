@@ -25,12 +25,13 @@ module.exports={
           console.log("Data aus builder:"+ JSON.stringify(data))
             return data
         },
-     message: function(result,params){
+     message: function(result,params, anzahl, intent){
           console.log("Es geht in Message")
-          console.log ("Ohne Mitarbeiter"+JSON.stringify(params))
+          console.log ("Daten für die message"+JSON.stringify(result) + "Intent = " +intent)
           var message =""
           var i = 1
-          while(result[i]!= undefined){
+          if(anzahl == 2){
+          while(result[i]!= undefined || result[10] != undefined){
             // die position des Eintrags
             if(result[i+1] == undefined){
                 message+= " und ein letzter Eintrag  "
@@ -39,21 +40,96 @@ module.exports={
             }else{
               message+= ", ein weiterer Eintrag  "
             }
-            // ab hier die Inhalte
-            if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
-              message+= "zu " + result[i].mitarbeiter
 
-            if(params["programmiersprache"] == undefined ||  params["programmiersprache"] == "" && result[i].programmiersprache != undefined )
-              message+= " mit der Programmiersprache " + result[i].programmiersprache
+            /*
+              Hier werden nur die informationen geliefert die der Benutzer nicht gefragt hat:
 
-            if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
-              message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+              Benutzer fraget nach Robin Test -> System gibt nur Programmiersprache und Erfahrungslevel aus
+
+            */
+
+              if(intent == "programmiersprache"){
+                // ab hier die Inhalte
+                    if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                      message+= "zu " + result[i].mitarbeiter
+
+                    if(params["programmiersprache"] == undefined ||  params["programmiersprache"] == "" && result[i].programmiersprache != undefined )
+                      message+= " mit der Programmiersprache " + result[i].programmiersprache  
+
+                    if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                      message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+              }
+
+                if (intent == "framework"){
+
+                      if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                        message+= "zu " + result[i].mitarbeiter
+
+                      if(params["framework"] == undefined ||  params["framework"] == "" && result[i].framework != undefined )
+                        message+= " mit dem Framework " + result[i].framework   
+
+                      if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                        message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+                }
+
+                
+                if (intent == "skill"){
+
+                  if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                    message+= "zu " + result[i].mitarbeiter
+
+                  if(params["skill"] == undefined ||  params["skill"] == "" && result[i].skill != undefined )
+                      message+= " mit dem Skill " + result[i].skill     
+
+                  if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                    message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+            }
             
-            
-
               message+= ".\n\n"
             i++
+           }
           }
+
+          else if (anzahl == 1){
+
+                    if(intent == "programmiersprache"){
+                      // ab hier die Inhalte
+                          if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                            message+= "zu " + result[i].mitarbeiter
+
+                          if(params["programmiersprache"] == undefined ||  params["programmiersprache"] == "" && result[i].programmiersprache != undefined )
+                            message+= " mit der Programmiersprache " + result[i].programmiersprache  
+
+                          if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                            message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+                    }
+
+                    if (intent == "framework"){
+                          console.log("In Message -> Anzahl1 -> Framework")
+                          if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                            message+= "zu " + result[i].mitarbeiter
+
+                          if(params["framework"] == undefined ||  params["framework"] == "" && result[i].framework != undefined )
+                            message+= " mit dem Framework " + result[i].framework   
+
+                          if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                            message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+                    }
+
+        
+                    if (intent == "skill"){
+
+                      if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
+                        message+= "zu " + result[i].mitarbeiter
+
+                      if(params["skill"] == undefined ||  params["skill"] == "" && result[i].skill != undefined )
+                          message+= " mit dem Skill " + result[i].skill     
+
+                      if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
+                        message+= " auf dem Erfahrungslevel " + result[i].erfahrung
+                }
+          }
+          
           return message
         },
         compare: function(array,params){

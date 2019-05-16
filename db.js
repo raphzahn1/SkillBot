@@ -79,7 +79,7 @@ module.exports = {
         }
         return o
         },
-        insert: async function(query){
+        insert: async function(query,values){
             console.log("Es geht in Datenbankeintrag")
             const oracledb = require('oracledb');
             let connection, result;
@@ -87,9 +87,9 @@ module.exports = {
                 connection = await oracledb.getConnection(
                   {user: "system", password: "Ip280595!", connectString: "localhost/xe"});
                 console.log("Connection steht")
-                result = await connection.execute(query); 
+                result = await connection.execute(query,[values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9]],
+                { autoCommit: true }); 
                 console.log('Rows inserted: ' + result.rowsAffected);
-             
               } catch (err) {
                 console.error(err);
               } finally {

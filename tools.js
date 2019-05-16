@@ -7,6 +7,7 @@ module.exports = {
     // Name => ID
     preconditions: function (params,intent){
       console.log("In Preconditions")
+      console.log("Intent in prekonditions = " + intent)
         if (undefined != params["mitarbeiter"] && "" != params["mitarbeiter"]){
             console.log("In mitarbeiter")
             var query = "Select mpr_mta_id from mitarbeiter_properties where mpr_erstellt_von = '" + params["mitarbeiter"] + "'" 
@@ -72,6 +73,9 @@ module.exports = {
           params = JSON.parse(JSON.stringify(params).split('"skill":').join('"mse_skil_id":'))
           console.log("SKill:" + params['mse_skil_id'])
       }     
+
+      // Hier muss noch ein Case eingefügt werden, der Felder mit z.B. framework = "" löscht 
+        console.log("Raus aus Preconditions")
           return params
     },
 
@@ -113,7 +117,7 @@ module.exports = {
                     
                     // Für Framework Erfahrung und Mitarbeiter
                     if(result[counter]['MFE_FRAM_ID'] != undefined){
-                      console.log('Eintrag gefunden')
+                      console.log('Eintrag gefunden Framework')
                       key = result[counter]['MFE_FRAM_ID'] 
                       index = 'MFE_FRAM_ID'
                       console.log('Der Key'+key)
@@ -235,10 +239,10 @@ module.exports = {
       var i = 1
       while(frameworks[i] != undefined){
         // console.log(i+"Durchgang")
-        if (programmiersprache[i]['FRAM_ID'] === key){
+        if (frameworks[i]['FRAM_ID'] === key){
           console.log('der Key wurde gefunden')
           // Prog Bezeichnung finden
-          result[counter][index] = programmiersprache[i]['FRAM_BEZEICHNUNG']
+          result[counter][index] = frameworks[i]['FRAM_BEZEICHNUNG']
           result[counter] = JSON.parse(JSON.stringify(result[counter]).split('"'+ index+'":').join('"framework":'))
           console.log("Framework:" + result[counter]['framework'])
           console.log("Result aus Framework:" + JSON.stringify(result[counter]))
