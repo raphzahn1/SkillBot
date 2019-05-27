@@ -187,37 +187,36 @@ module.exports = {
         var fulfillmentText = "Also, lass uns mal sehen..."
         var message = {
       }
+      // vorher muss der Artikel gesucht werden
+        var artikel = params.artikel
+        console.log("Der Artikel = " + artikel)
+
         console.log("Lass uns nach der Frage suchen")
         var param
         for (var key in fu){
                 param = fu[key]
                 console.log("Parameter "+ param+ "und Key:" + key)
                 // Hier noch Kommentare zurückgeben 
-                if(param == "erstellt") {
+                if(artikel == "wann" && param == "erstellt") {
                   fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "bearbeitet") {
+                if(artikel == "wann" && param == "bearbeitet") {
                   fulfillmentText += "Bearbeitet wurde er am" +context['pflegedatum']
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "ersteller") {
+                if(artikel == "wer" && (param == "ersteller" || param == "erstellt")) {
                   fulfillmentText += context['ersteller']+ "hat den Eintrag erstellt"
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "bearbeiter") {
+                if(artikel == "wer" && (param == "bearbeiter" || param == "bearbeitet") ) {
                   fulfillmentText += context['bearbeiter'] + "hat den Eintrag bearbeitet"
-                  message["fulfillmentText"] = fulfillmentText
                 } 
                 if(param == "level") {
                   fulfillmentText += context['mitarbeiter'] + "ist auf dem Level " +context['level']
-                  message["fulfillmentText"] = fulfillmentText
                 } 
                 if(param == "beschreibung"){
                   message["fulfillmentMessages"]  = [
                          {
                           "card": {
-                          "title": "Hier ist eine Beschreibung zu " + context["programmiersprache"],
+                          "title": "Hier ist eine Beschreibung zu " + context["programmiersprache"]+ ": Willst du sonst noch etwas Wissen? Stelle mir die Frage, oder sage Nein",
                               "subtitle": "hier klicken :)",
                                "imageUri": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wikipedia_logo_593.jpg",
                               "buttons": [
@@ -231,24 +230,31 @@ module.exports = {
                    ]
                 } 
                 if (param == "kommentar"){
-                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: /n"+context['kommentar']
-                  message["fulfillmentText"] = fulfillmentText
-                  
+                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: \n "+context['kommentar']
                 }
-
-
+                 
+            }
+            fulfillmentText += "\n Möchtest du weitere Fragen stellen? Wenn nicht kannst du einfach verneinen"
+                 message["fulfillmentText"] = fulfillmentText
                  message["outputContexts"] = [  
                    {  
-                   "name":session + "/contexts/" + "eintrag" ,
+                   "name":session + "/contexts/" + "programmiersprache_FU" ,
                    "lifespanCount":1,
                    "parameters":{
                         context
                       }
-                  }
+                  },
+                  {  
+                    "name":session + "/contexts/auswahl" ,
+                    "lifespanCount":1
+                   },
+                   {  
+                     "name":session + "/contexts/info" ,
+                     "lifespanCount":1
+                    }
              ]
 
-            }
-            console.log( "raus")
+            console.log( "raus aus Programmiersprache_FU")
             return message
         }
 }

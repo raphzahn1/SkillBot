@@ -248,6 +248,7 @@ module.exports = {
         database.insert(query,values)
     },
     update: function (req, intent,session){
+        console.log("In Update")
         date = date.format(new Date(),'DD.MM.YYYY')
         var query
         var input
@@ -261,7 +262,7 @@ module.exports = {
         // Input aus der Anfrage ziehen und in EIntrag schreiben
         if (intent == "update_auswaehlen_kommentar_start"){
             input = req.body.queryResult.queryText
-            params.kommentar += "\r\n Eintrag vom " + date  +":"+ input
+            params.kommentar += "\n Eintrag vom " + date  +": \n "+ input
         }
         if (intent == "update_auswaehlen_level_start"){
             input = context.parameters.erfahrung
@@ -280,21 +281,23 @@ module.exports = {
     if (params.programmiersprache != undefined){
         var typ = "programmiersprache"
         params = tools.preconditions(params,typ)
-        query = "UPDATE mta_prog_erfa_zuo SET mpe_erfa_id :1, mpe_kommentar :2 where mpe_id = :3"
-        values=[params.mpe_erfa_id,params.kommentar, params.mpe_id]
+        console.log("params nach Preconditions in update "+ JSON.stringify(params))
+        query = "UPDATE mta_prog_erfa_zuo SET mpe_erfa_id = :1, mpe_kommentar = :2 where MPE_ID = :3"
+        values=[params.mpe_erfa_id,params.kommentar, params.MPE_ID]
         // Noch nicht fertig!!!!!!!!!
     }else if (params.framework != undefined){
         var typ = "framework"
         params = tools.preconditions(params,typ)
-        query = "UPDATE mta_fram_erfa_zuo SET mfe_erfa_id :1, mfe_kommentar :2 where mfe_id = :3"
-        values=[params.mfe_erfa_id,params.kommentar, params.mfe_id]
+        query = "UPDATE mta_fram_erfa_zuo SET mfe_erfa_id = :1, mfe_kommentar = :2 where MFE_ID = :3"
+        values=[params.mfe_erfa_id,params.kommentar, params.MFE_ID]
     }else if(params.skill != undefined){
         var typ = "skill"
         params = tools.preconditions(params,typ)
-        query = "UPDATE mta_skil_erfa_zuo SET mse_erfa_id :1, mse_kommentar :2 where mse_id = :3"
-        values=[params.mse_erfa_id,params.kommentar, params.mse_id]
+        query = "UPDATE mta_skil_erfa_zuo SET mse_erfa_id = :1, mse_kommentar = :2 where MSE_ID = :3"
+        values=[params.mse_erfa_id,params.kommentar, params.MSE_ID]
     }
     console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
+    console.log("Params.mpe_id: " + params.MPE_ID)
     console.log("value 0 einzelnes Experiment" + values[0])
     database.insert(query,values)
        

@@ -162,25 +162,29 @@ module.exports = {
         var fulfillmentText = "Also, lass uns mal sehen..."
         var message = {
       }
+
+        // vorher muss der Artikel gesucht werden
+        var artikel = params.artikel
+        console.log("Der Artikel = " + artikel)
         console.log("Lass uns nach der Frage suchen")
         var param
         for (var key in fu){
                 param = fu[key]
                 console.log("Parameter "+ param+ "und Key:" + key)
                 // Hier noch Kommentare zurückgeben 
-                if(param == "erstellt") {
+                if(artikel == "wann" && param == "erstellt") {
                   fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
                   message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "bearbeitet") {
+                if(artikel == "wann" && param == "bearbeitet") {
                   fulfillmentText += "Bearbeitet wurde er am" +context['pflegedatum']
                   message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "ersteller") {
+                if(artikel == "wer" && (param == "ersteller" || param == "erstellt")){
                   fulfillmentText += context['ersteller']+ "hat den Eintrag erstellt"
                   message["fulfillmentText"] = fulfillmentText
                 } 
-                if(param == "bearbeiter") {
+                if(artikel == "wer" && (param == "bearbeiter" || param == "bearbeitet") )  {
                   fulfillmentText += context['bearbeiter'] + "hat den Eintrag bearbeitet"
                   message["fulfillmentText"] = fulfillmentText
                 } 
