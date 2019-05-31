@@ -199,7 +199,7 @@ module.exports = {
         var counter = 0
         for (var i in params) {
             if (params[i] != ""){
-                if(counter == 0)
+                if(counter == 0 )
             output += i + " = '" + params[i] + "'"
             else{
             output += " AND " + i + " = '" + params[i]+ "'"
@@ -337,6 +337,27 @@ module.exports = {
                   }
               
               return result[counter]
+    },
+    contextButtler: function(req,name){
+      console.log("In Kontextbuttler")
+      // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
+      var i = 1
+      var context = ""
+      var outputContexts = req.body.queryResult.outputContexts
+      console.log("Der Kontext aus Programmiersprache: "+JSON.stringify(req.body.queryResult.outputContexts))
+      console.log("Unser Vergleichskontext:"+ name)
+      console.log("Die Länge des Kontext" +outputContexts.length)
+
+      for ( var i=1; i < outputContexts.length; i++ ) {
+        if (outputContexts[i].name == name) {
+          var context = outputContexts[i] ; // "entry" is now the entry you were looking for
+          // ... do something useful with "entry" here...
+        }
+        
+      }
+      console.log("Kontext nach Konvertierung :" + context)
+      return context
+
     }
     
     

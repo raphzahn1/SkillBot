@@ -2,6 +2,7 @@ framework = require('./framework')
 skill = require ('./skill')
 programmiersprache = require ('./programmiersprache')
 extra = require ('./extra')
+fallback = require ('./fallback')
 
 
 module.exports = {
@@ -16,12 +17,15 @@ module.exports = {
         console.log (intent + JSON.stringify(params) +session )
 
         // *** auswahl bei mehreren unterschiedlichen intents **
-          if(intent == "info_auswahl-funktion" || "eintragen_auswahl" || "update_auswahl-funktion")
+          if(intent == "info_auswahl-funktion" || intent == "eintragen_auswahl" || intent == "update_auswahl-funktion")
              query = extra.getFunction(params,session)
 
-        if(intent == "update_auswahl-funktion")
-        query = extra.getUpdate(params,session,context)
-
+        //***  wird nicht  mehr benötigt 
+        //if(intent == "update_auswahl-funktion")
+        //query = extra.getUpdate(params,session,context)
+        
+        if(intent == "update_auswaehlen_kommentar_start" || intent == "update_auswaehlen_level_start"){
+            query = extra.update(req, intent,session)}
 
 
         //*** speichern von Daten **
@@ -36,36 +40,42 @@ module.exports = {
         if(intent == "framework")
             query = framework.getFramework(session,params,intent);
 
-        else if(intent == "framework_FU"){
+        if(intent == "framework_FU"){
             query = framework.getFrameworkFU(req,session,params);
         }
 
         // *** skill ***            
-        else if(intent == "skill")
+        if(intent == "skill")
             query = skill.getSkill(params,intent);
 
-        else if(intent == "skill_FU")
+        if(intent == "skill_FU")
             query = skill.getSkillFU(params,intent);  
 
         // *** Programmiersprache ***
-        else if(intent == "programmiersprache")
-            query = programmiersprache.getProgrammiersprache(session,params,intent)
+        if(intent == "programmiersprache")
+            query = programmiersprache.getProgrammiersprache(session,params,intent,req)
 
-        else if (intent == "programmiersprache_vergleich")
+        if (intent == "programmiersprache_vergleich")
             query = programmiersprache.getProgrammierspracheVS(session,params,intent)
 
-        else if(intent == "programmiersprache_FU"){
+        if(intent == "programmiersprache_FU")
             query = programmiersprache.getProgrammierspracheFU(req,session,params);
-        }
+        
 
         // *** Eintrag ***
-        else if(intent == "eintragen_yes"){
+        if(intent == "eintragen_yes"){
             console.log("Eintragen_yes yes")
            // var name = req.body.outputContexts[2].parameters.user
             var name = "Tester"
             console.log("Name: "+ name)
-            query = extra.insert(name,req,intent,session);
+            query = extra.insert(name,req,session);
         } 
+
+        //*** Der Webhook für den Fallbackintent
+        if (intent == "Default Fallback Intent")
+            query = fallback.fallback(req,session)
+        
+        
 
         return query
     }

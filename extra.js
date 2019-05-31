@@ -14,7 +14,6 @@ module.exports = {
                 if (key == "anfragen_auskunft")
                 context = params[key]
 
-
             }
 
                 
@@ -31,44 +30,66 @@ module.exports = {
         return message
     },getUpdate : function(params,session){
         console.log("in getFunction")
+
+            var funktion
+            var auskunft
            // context = params["auswahl_funktion"]
             for (var key in params){
                 if (key == "auswahl_funktion")
-                context = params[key]
+                funktion = params[key]
 
                 if (key == "anfragen_auskunft")
-                context = params[key]
-
-
+                auskunft = params[key]
             }
         
-        var params
-        var key
+        
+        // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
         var i = 1
+        var context = ""
+        var outputContexts = req.body.queryResult.outputContexts
+        console.log("Der Kontext aus Programmiersprache: "+JSON.stringify(req.body.queryResult.outputContexts))
+        console.log("Unser Vergleichskontext:"+ session + "/contexts/update")
+        console.log("Die Länge des Kontext" +outputContexts.length)
 
-        // Hier werden jetzt die Daten aus dem Letzten Intent gesucht, die eingetragen werden sollen
+        for ( var i=1; i < outputContexts.length; i++ ) {
+          if (outputContexts[i].name == session + "/contexts/update") {
+            var context = outputContexts[i].parameters ; // "entry" is now the entry you were looking for
+            // ... do something useful with "entry" here...
+          }
+          
+        }
+        console.log("Kontext nach Konvertierung :" + context)
 
-        while (params == undefined){
-            key = req.body.queryResult.outputContexts[i].name
+                
+          // Kontext wird für Kommentar und Level verändert
 
-            if(key == session + "/contexts/programmiersprache_fu" || session + "/contexts/framework_fu"||session + "/contexts/skills_fu")
-            params = req.body.queryResult.outputContexts[i].parameters
-
-            i++
+            if(funktion == "eintragen" || auskunft == "kommentar"){
+                var outputContexts= [  
+                    {  
+                    "name":session + "/contexts/kommentar"  ,
+                    "lifespanCount":1,
+                    
+                },{
+                    "name":session + "/contexts/update" ,
+                    "lifespanCount":1, 
+                    context
+                }]    
             }
 
-                
-          // var message = "Gut also " +context+ ": Du kannst mich zu einer bestimmten Fähigkeit, einem bestimmten Mitarbeiter oder einem bestimmten Erfahrlevel befragen "
-            var outputContexts= [  
-                {  
-                "name":session + "/contexts/" + context ,
-                "lifespanCount":1,
-                
-            },{
-                "name":session + "/contexts/update" ,
-                "lifespanCount":1, 
-                params
-            }]
+            if(funktion == "bearbeiten" || auskunft == "level"){
+                var outputContexts= [  
+                    {  
+                    "name":session + "/contexts/level"  ,
+                    "lifespanCount":1,
+                    
+                },{
+                    "name":session + "/contexts/update" ,
+                    "lifespanCount":1, 
+                    context
+                }]    
+            }
+
+            
             var message = builder.builder(outputContexts,message)
         
         return message
@@ -173,7 +194,7 @@ module.exports = {
         })
         
     },
-    insert : function(name,req,intent,session){
+    insert : function(name,req,session){
         console.log("In Insert aus Extra")
         date = date.format(new Date(),'DD.MM.YYYY')
         var context = session + "/contexts/insert"
@@ -225,6 +246,61 @@ module.exports = {
         console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
         console.log("value 0 einzelnes Experiment" + values[0])
         database.insert(query,values)
+    },
+    update: function (req, intent,session){
+        console.log("In Update")
+        date = date.format(new Date(),'DD.MM.YYYY')
+        var query
+        var input
+        var params
+
+        var name = session + "/contexts/update"
+        var context = tools.contextButtler(req,name)
+        var auswahl = context.parameters.auswahl
+        params = context.parameters.result[auswahl]
+
+        // Input aus der Anfrage ziehen und in EIntrag schreiben
+        if (intent == "update_auswaehlen_kommentar_start"){
+            input = req.body.queryResult.queryText
+            params.kommentar += "\n Eintrag vom " + date  +": \n "+ input
+        }
+        if (intent == "update_auswaehlen_level_start"){
+            input = context.parameters.erfahrung
+            params.level = input
+        }
+ 
+        
+        // ACHTUNG! Datum muss noch angepasst werden
+
+        /*
+            -> Level muss angepasst werden
+            -> ID anpassen
+            -> wenn funktioniert auf framework und skill übertragen ACHTUNG!!!!!!!
+        */ 
+
+    if (params.programmiersprache != undefined){
+        var typ = "programmiersprache"
+        params = tools.preconditions(params,typ)
+        console.log("params nach Preconditions in update "+ JSON.stringify(params))
+        query = "UPDATE mta_prog_erfa_zuo SET mpe_erfa_id = :1, mpe_kommentar = :2 where MPE_ID = :3"
+        values=[params.mpe_erfa_id,params.kommentar, params.MPE_ID]
+        // Noch nicht fertig!!!!!!!!!
+    }else if (params.framework != undefined){
+        var typ = "framework"
+        params = tools.preconditions(params,typ)
+        query = "UPDATE mta_fram_erfa_zuo SET mfe_erfa_id = :1, mfe_kommentar = :2 where MFE_ID = :3"
+        values=[params.mfe_erfa_id,params.kommentar, params.MFE_ID]
+    }else if(params.skill != undefined){
+        var typ = "skill"
+        params = tools.preconditions(params,typ)
+        query = "UPDATE mta_skil_erfa_zuo SET mse_erfa_id = :1, mse_kommentar = :2 where MSE_ID = :3"
+        values=[params.mse_erfa_id,params.kommentar, params.MSE_ID]
+    }
+    console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
+    console.log("Params.mpe_id: " + params.MPE_ID)
+    console.log("value 0 einzelnes Experiment" + values[0])
+    database.insert(query,values)
+       
     }
     
 
