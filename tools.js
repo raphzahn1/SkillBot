@@ -199,7 +199,7 @@ module.exports = {
         var counter = 0
         for (var i in params) {
             if (params[i] != ""){
-                if(counter == 0)
+                if(counter == 0 )
             output += i + " = '" + params[i] + "'"
             else{
             output += " AND " + i + " = '" + params[i]+ "'"

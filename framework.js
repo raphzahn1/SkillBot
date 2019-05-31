@@ -143,14 +143,10 @@ module.exports = {
       console.log("FrameworkFU")
             var entry
             var context
-            i = 1
-            while (entry == undefined){
-            entry = req.body.queryResult.outputContexts[i].parameters.auswahl
-            i++
-            }
             i=1
             console.log("Entry" + entry)
             while (context == undefined){
+                 entry = req.body.queryResult.outputContexts[i].parameters.auswahl
                  context = req.body.queryResult.outputContexts[i].parameters.result
                 i++
             }
@@ -171,22 +167,18 @@ module.exports = {
         for (var key in fu){
                 param = fu[key]
                 console.log("Parameter "+ param+ "und Key:" + key)
-                // Hier noch Kommentare zurückgeben 
-                if(artikel == "wann" && param == "erstellt") {
+                 // Hier noch Kommentare zurückgeben 
+                 if(artikel == "wann" && param == "erstellt" || param == "erstelldatum") {
                   fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(artikel == "wann" && param == "bearbeitet") {
+                if((artikel == "wann" && param == "bearbeitet")|| param == "bearbeitungsdatum") {
                   fulfillmentText += "Bearbeitet wurde er am" +context['pflegedatum']
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(artikel == "wer" && (param == "ersteller" || param == "erstellt")){
+                if((artikel == "wer" && param == "erstellt") || param == "ersteller") {
                   fulfillmentText += context['ersteller']+ "hat den Eintrag erstellt"
-                  message["fulfillmentText"] = fulfillmentText
                 } 
-                if(artikel == "wer" && (param == "bearbeiter" || param == "bearbeitet") )  {
+                if((artikel == "wer" && param == "bearbeitet") || param == "bearbeiter" ) {
                   fulfillmentText += context['bearbeiter'] + "hat den Eintrag bearbeitet"
-                  message["fulfillmentText"] = fulfillmentText
                 } 
                 if(param == "level") {
                   fulfillmentText += context['mitarbeiter'] + "ist auf dem Level " +context['level']

@@ -16,7 +16,7 @@ module.exports = {
         var back = {
         }
         var anzahl
-        var message
+        var message = ""
         intent = "programmiersprache"
 
         // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
@@ -39,7 +39,7 @@ module.exports = {
 
         console.log("Weiter in den Abgleich")
         if(result[1]== undefined){
-            back["fulfillmentText"] = "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
+            message += "Ich konnte leider keinen Eintrag zu deiner Suche finden. Kannst du bitte die NAtwort wiederholen"
             back["outputContexts"]= [  
               {  
               "name":session + "/contexts/" + "programmiersprache" ,
@@ -55,11 +55,10 @@ module.exports = {
             // Unterschiedliche Inhalte für -> insert
             if(context == session + "/contexts/info"){
               message += "Zu welchen Eintrag möchtest du genauere Informationen?"
-            if(context)
             back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "programmiersprache_fu" ,
-                "lifespanCount":2,
+                "lifespanCount":4,
                 "parameters":{
                     result
                 }
@@ -68,13 +67,12 @@ module.exports = {
             }
 
             // Unterschiedliche Inhalte für -> update
-            if(context == session + "/contexts/update"){
+           else if(context == session + "/contexts/update"){
               message += "Bitte, wähle den Eintrag aus, für den du das Update durchführen möchtest?"
-            if(context)
-            back["outputContexts"]= [  
+              back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "update" ,
-                "lifespanCount":2,
+                "lifespanCount":4,
                 "parameters":{
                     result
                 }
@@ -83,37 +81,35 @@ module.exports = {
             }
 
 
-            back["payload"]={"slack":{"text": message}}
-            back["fulfillmentText"]=message
-        }else{
+      
+            
+        }else if(result[1] != undefined){
           anzahl = 1
           message += "Ich habe einen Eintrag "
           message += builder.message (result,params,anzahl,intent)
 
            // Unterschiedliche Inhalte für -> insert
-           if(context == session + "/contexts/insert"){
+           if(context == session + "/contexts/info"){
           message += "gefunden. Was möchtest du zu dem Eintrag wissen?"
           
           back["outputContexts"]= [  
               {  
               "name":session + "/contexts/" + "programmiersprache_fu" ,
-              "lifespanCount":7,
+              "lifespanCount":4,
               "parameters":{
-                result
+                result,
+                "auswahl":1
             }
               },
               {  
                 "name":session + "/contexts/" + "auswahl" ,
-                "lifespanCount":1,
-                "parameters":{
-                  "auswahl":1
-              }
+                "lifespanCount":1
               }
             ]
            }
 
            // Unterschiedliche Inhalte für -> update
-           if(context == session + "/contexts/update"){
+           else if(context == session + "/contexts/update"){
             message += "gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein?"
             
             back["outputContexts"]= [  
@@ -121,20 +117,33 @@ module.exports = {
                 "name":session + "/contexts/" + "update" ,
                 "lifespanCount":7,
                 "parameters":{
-                  result
+                  result,
+                  "auswahl":1
               }
                 },
                 {  
                   "name":session + "/contexts/" + "auswahl" ,
-                  "lifespanCount":1,
-                  "parameters":{
-                    "auswahl":1
-                }
+                  "lifespanCount":1
                 }
               ]
              }
-          back["fulfillmentText"] = message
       }
+      // Suggestion Chips für die Antwortenauswahl in Slack setzten 
+      
+    back["messages"] = 
+        {
+        "platform": "slack",
+        "replies": [
+          "Quick reply 1",
+          "Quick reply 2",
+          "Quick reply 3"
+        ],
+        "title": "Quick Reply Title",
+        "type": 2
+      }
+    
+      
+        back["fulfillmentText"]=message
         console.log("Message ist gesetzt")
         // test von input
         return back;
@@ -168,17 +177,14 @@ module.exports = {
       console.log("ProgrammierspracheFU")
             var entry
             var context
-            i = 1
-            while (entry == undefined){
-            entry = req.body.queryResult.outputContexts[i].parameters.auswahl
-            i++
-            }
             i=1
             console.log("Entry" + entry)
             while (context == undefined){
+                 entry = req.body.queryResult.outputContexts[i].parameters.auswahl
                  context = req.body.queryResult.outputContexts[i].parameters.result
                 i++
             }
+            console.log("Entry" + entry)
             console.log("context glesen" + JSON.stringify(context))
             var context = context[entry]
             console.log("result ist ausgelesen" + JSON.stringify(context) )
@@ -190,27 +196,26 @@ module.exports = {
       // vorher muss der Artikel gesucht werden
         var artikel = params.artikel
         console.log("Der Artikel = " + artikel)
-
         console.log("Lass uns nach der Frage suchen")
         var param
         for (var key in fu){
                 param = fu[key]
                 console.log("Parameter "+ param+ "und Key:" + key)
                 // Hier noch Kommentare zurückgeben 
-                if(artikel == "wann" && param == "erstellt") {
-                  fulfillmentText += "Der Éintrag ist vom" + context['erstelldatum'] 
+                if(artikel == "wann" && param == "erstellt" || param == "erstelldatum") {
+                  fulfillmentText += "Der Éintrag ist vom " + context['erstelldatum'] 
                 } 
-                if(artikel == "wann" && param == "bearbeitet") {
-                  fulfillmentText += "Bearbeitet wurde er am" +context['pflegedatum']
+                if((artikel == "wann" && param == "bearbeitet")|| param == "bearbeitungsdatum") {
+                  fulfillmentText += "Bearbeitet wurde er am " +context['pflegedatum']
                 } 
-                if(artikel == "wer" && (param == "ersteller" || param == "erstellt")) {
-                  fulfillmentText += context['ersteller']+ "hat den Eintrag erstellt"
+                if((artikel == "wer" && param == "erstellt") || param == "ersteller") {
+                  fulfillmentText += context['ersteller']+ " hat den Eintrag erstellt"
                 } 
-                if(artikel == "wer" && (param == "bearbeiter" || param == "bearbeitet") ) {
-                  fulfillmentText += context['bearbeiter'] + "hat den Eintrag bearbeitet"
+                if((artikel == "wer" && param == "bearbeitet") || param == "bearbeiter" ) {
+                  fulfillmentText += context['bearbeiter'] + " hat den Eintrag bearbeitet"
                 } 
                 if(param == "level") {
-                  fulfillmentText += context['mitarbeiter'] + "ist auf dem Level " +context['level']
+                  fulfillmentText += context['mitarbeiter'] + " ist auf dem Level " +context['level']
                 } 
                 if(param == "beschreibung"){
                   message["fulfillmentMessages"]  = [
