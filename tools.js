@@ -56,7 +56,7 @@ module.exports = {
 
         if (undefined != params["framework"] && "" != params["framework"]){
                 console.log("In Framework")
-                var query = "Select fram_ID from frameworks where fram_bezeichnung = '" + params["programmiersprache"] + "'" 
+                var query = "Select fram_ID from frameworks where fram_bezeichnung = '" + params["framework"] + "'" 
                 var framework = database.database(query)
                 console.log("Die Prekonditions:"+framework[1].FRAM_ID)
                 params["framework"] = framework[1].FRAM_ID

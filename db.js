@@ -35,7 +35,7 @@ module.exports = {
 
                 }
                 console.log(result.metaData[0].name)
-                console.log(result.rows[0][1]);
+                console.log(result.rows);
                 ergebnis = result
                 check = "done"
                 connection.close(
@@ -52,6 +52,7 @@ module.exports = {
 
 
         // ***** Converting in simple JSON
+
         var o = {}
         counter = 0
         //console.log ("ergebnis rows counter"+ ergebnis.rows[counter])

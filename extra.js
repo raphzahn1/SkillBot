@@ -2,6 +2,7 @@ var builder = require('./builder')
 var tools = require('./tools')
 var database = require('./db')
 var date = require('date-and-time')
+var id = 400
 
 module.exports = {
     getFunction : function(params,session){
@@ -197,6 +198,7 @@ module.exports = {
     insert : function(name,req,session){
         console.log("In Insert aus Extra")
         date = date.format(new Date(),'DD.MM.YYYY')
+        id++ 
         var context = session + "/contexts/insert"
         var query
         var values
@@ -229,19 +231,19 @@ module.exports = {
             var typ = "programmiersprache"
             params = tools.preconditions(params,typ)
             query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+            values=[id,params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
 
             // Noch nicht fertig!!!!!!!!!
         }else if (params.framework != undefined){
             var typ = "framework"
             params = tools.preconditions(params,typ)
-            query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+            query = "Insert into mta_fram_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
+            values=[id,params.mfe_fram_id,params.mfe_erfa_id,name,date,name,date,'2',params.mfe_mta_id,"Test_Kommentar"]
         }else if(params.skill != undefined){
             var typ = "skill"
             params = tools.preconditions(params,typ)
-            query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=['333',params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+            query = "Insert into mta_skil_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
+            values=[id,params.mse_skil_id,params.mse_erfa_id,name,date,name,date,'2',params.mse_mta_id,"Test_Kommentar"]
         }
         console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
         console.log("value 0 einzelnes Experiment" + values[0])

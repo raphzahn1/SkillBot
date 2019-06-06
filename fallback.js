@@ -31,6 +31,10 @@ module.exports = {
               {  
               "name":session + "/contexts/option",
               "lifespanCount":1
+            },
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
             }
           ]
         }
@@ -49,7 +53,7 @@ module.exports = {
             }
             
 
-            if(array.includes(session + "/contexts/insert")){
+           else if(array.includes(session + "/contexts/insert")){
               road = "/contexts/insert"
             }
             
@@ -62,6 +66,10 @@ module.exports = {
             ,{  
                 "name":session + road,
                 "lifespanCount":1
+              },
+              {  
+                "name":session + "/contexts/name",
+                "lifespanCount":5
               }
 
           ]
@@ -70,7 +78,7 @@ module.exports = {
        
 
         // Fallback für die FU's
-        else if (array.includes(session + "/contexts/programmiersprache_fu" || session + "/contexts/framework_fu" || session + "/contexts/skills_fu") && array.includes(session + "/contexts/auswahl")) {
+        else if (array.includes(session + "/contexts/programmiersprache_fu" || session + "/contexts/framework_fu" || session + "/contexts/skills_fu" && session + "/contexts/auswahl")) {
             back["fulfillmentText"] = "Wenn du Fragen zu einer Person oder einem Datum hast, stelle mir deine Frage mit einem Fragewort und einer Operation. z.B: 'Wer hat den Eintrag bearbeitet', ansonsten nenne mir einfach Schlüsselwörter, wie Level und Kommentar. Versuche es bitte erneut ...   (Aus dem Webhook)" 
             
             if(array.includes(session + "/contexts/programmiersprache_fu")){
@@ -96,6 +104,10 @@ module.exports = {
               {  
                 "name":session + "/contexts/info",
                 "lifespanCount":1
+              },
+              {  
+                "name":session + "/contexts/name",
+                "lifespanCount":5
               }
             ] 
   
@@ -103,7 +115,7 @@ module.exports = {
         }
 
          // Bei der Suche nach einem Eintrag
-       else if (array.includes(session + "/contexts/programmiersprache" || session + "/contexts/framework"|| session + "/contexts/skills")&& array.includes(session + "/contexts/info")){
+       else if (array.includes((session + "/contexts/programmiersprache" || session + "/contexts/framework"|| session + "/contexts/skills")&& session + "/contexts/info")){
         back["fulfillmentText"] = "Ich benötige einen Hinweis wonach ich suchen soll. Du könntest mir z.B. folgende Frage stellen: 'Was weißt du zu Robin Schulz' oder 'Wer kann Java'. Du kannst mich jetzt nocheinmal fragen ... (Webhook)"
         
         if(array.includes(session + "/contexts/programmiersprache")){
@@ -121,6 +133,11 @@ module.exports = {
             "name":session + road,
             "lifespanCount":1
           }
+          ,
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
+            }
         ]
       }
       // Auswahlfunktion für Infoeinträge info_auswaehlen
@@ -134,38 +151,14 @@ module.exports = {
             {  
               "name":session + "/contexts/info",
               "lifespanCount":1
+            },
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
             }
             
           ]
-        }
-
-        // für eintragen (programmiersprache, framework, skills)
-        else if (array.includes(session + "/contexts/programmiersprache" || session + "/contexts/framework" || session + "/contexts/skills") && array.includes(session + "/contexts/insert")){
-          back["fulfillmentText"] = "Damit ich den Eintrag machen kann, musst du folgendes angeben: Vorname, Name, Programmiersprache und das Level. Du könntest z.B. sagen 'Trage Java für Robin Schulz auf level 1 ein ' Bitte versuche es nocheinmal ... (Webhook)"
-          
-          if(array.includes(session + "/contexts/programmiersprache")){
-            road = "/contexts/programmiersprache"
-          }
-          else if(array.includes(session + "/contexts/framework")){
-            road = "/contexts/framework"}
-
-          else if(array.includes(session + "/contexts/skills")){
-            road = "/contexts/skills"
-          }
-          back["outputContexts"]= [  
-            {  
-            "name":session + road,
-            "lifespanCount":1
-          },
-          {  
-            "name":session + "/contexts/insert",
-            "lifespanCount":1
-          }
-          
-        ]
-      }
-
-           
+        }  
 
              // speichern
              else if (array.includes(session + "/contexts/eintrag")) {
@@ -182,7 +175,7 @@ module.exports = {
                 ,
                 {  
                   "name":session + "/contexts/name",
-                  "lifespanCount":1
+                  "lifespanCount":5
                 }
               ] 
     
@@ -203,13 +196,17 @@ module.exports = {
               {  
                 "name":session + "/contexts/info",
                 "lifespanCount":1
+              },
+              {  
+                "name":session + "/contexts/name",
+                "lifespanCount":5
               }
             ] 
   
         }
 
         // email_yes_fu
-        else if (array.includes(session + "/contexts/email")&& array.includes(session + "/contexts/fu")) {
+        else if (array.includes(session + "/contexts/email"&& session + "/contexts/fu")) {
           back["fulfillmentText"] = "Ich habe deine E-mail Adresse nicht bekommen. Bitte sage mir deine E-mail Adresse erneut. (Aus dem Webhook)" 
           back["outputContexts"] = [
             {  
@@ -219,6 +216,10 @@ module.exports = {
             {  
               "name":session + "/contexts/fu",
               "lifespanCount":1
+            },
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
             }
           ] 
 
@@ -231,15 +232,47 @@ module.exports = {
           {  
             "name":session + "/contexts/email",
             "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/name",
+            "lifespanCount":5
           }
         ] 
        }
 
        // **** Die Fallbacks für Update ***
 
+         // Bei der Suche nach einem Eintrag
+         else if (array.includes((session + "/contexts/programmiersprache" || session + "/contexts/framework"|| session + "/contexts/skills") && session + "/contexts/update")){
+          back["fulfillmentText"] = "Ich benötige einen Hinweis wonach ich den Eintrag für die Bearbeitung suchen soll. Du könntest mir z.B. folgende Hinweise geben: _'Einträge mit Robin Schulz'_ oder _'Suche Einträge mit Java'_. Du kannst mich jetzt nocheinmal fragen ... (Webhook)"
+          
+          if(array.includes(session + "/contexts/programmiersprache")){
+            road = "/contexts/programmiersprache"
+          }
+          else if(array.includes(session + "/contexts/framework")){
+            road = "/contexts/framework"
+          }
+          else if(array.includes(session + "/contexts/skills")){
+            road = "/contexts/skills"
+          }
+            
+  
+          back["outputContexts"] =[ {  
+              "name":session + road,
+              "lifespanCount":1
+            }, {  
+              "name":session + "/contexts/update",
+              "lifespanCount":3
+            },
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
+            }
+          ]
+        }
        
         // Auswahlfunktion für Infoeinträge update_auswaehlen
-        else if (array.includes(session + "/contexts/12oder3" && session + "/contexts/update")){
+        else if (array.includes(session + "/contexts/12oder3"&& session + "/contexts/update")){
           back["fulfillmentText"] = "Damit du einen eintrag bearbeiten kannst, musst du einen Eintrag auswählen. Sage dafür mir bitte die Nummer deines Eintrags. Z.B. '1'. Bitte versuche es nocheinmal ... (Webhook)"
           back["outputContexts"]= [  
             {  
@@ -249,13 +282,17 @@ module.exports = {
           {  
             "name":session + "/contexts/update",
             "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/name",
+            "lifespanCount":5
           }
           
         ]
       }
 
      // update_auswaehlen_level
-     else if (array.includes(session + "/contexts/level") && array.includes(session + "/contexts/update" )) {
+     else if (array.includes(session + "/contexts/level" && session + "/contexts/update" )) {
       back["fulfillmentText"] = "Du musst mir das neue Level sagen. Z.B. könntest du sagen: *Setze Raphael Palombo auf Level 2 sagen*. Level 1 ist niedrigste, Level 3 die höchste Stufe.    (Aus dem Webhook)" 
       back["outputContexts"] = [
         {  
@@ -266,34 +303,118 @@ module.exports = {
           "name":session + "/contexts/update",
           "lifespanCount":1
         }
+        ,
+        {  
+          "name":session + "/contexts/name",
+          "lifespanCount":5
+        }
       ] 
 
   }
 
-   // update_auswaehlen_level
-   else if (array.includes(session + "/contexts/kommentar" && session + "/contexts/update" && session + "/contexts/update_auswaehlen_kommentar_followup")) {
-    back["fulfillmentText"] = "Ich habe deinen Kommentar leider nicht erhalten. Bitte mache ihn erneut" 
-    back["outputContexts"] = [
-      {  
-        "name":session + "/contexts/update",
-        "lifespanCount":1
-      },
-      {  
-        "name":session + "/contexts/update_auswaehlen_kommentar_followup",
-        "lifespanCount":1
-      },
-      {  
-        "name":session + "/contexts/kommentar",
-        "lifespanCount":1
-      },
-      {  
-        "name":session + "/contexts/auswahl",
-        "lifespanCount":1
+  
+      // update_auswaehlen_kommentar_start
+      else if (array.includes(session + "/contexts/update" && session + "/contexts/auswahl")) {
+        back["fulfillmentText"] = "Ich habe deinen Auswahl leider nicht erhalten. Möchtest du eine *Leveländerung* oder einen *Kommentar* machen ?" 
+        back["outputContexts"] = [
+          {  
+            "name":session + "/contexts/update",
+            "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/update_auswaehlen_kommentar_followup",
+            "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/kommentar",
+            "lifespanCount":1
+          }
+          ,
+           {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
+            }
+        ] 
+
+    }
+  
+
+      // update_auswaehlen_kommentar_start
+      else if (array.includes(session + "/contexts/kommentar" && session + "/contexts/update" && session + "/contexts/update_auswaehlen_kommentar_followup")) {
+        back["fulfillmentText"] = "Ich habe deinen Kommentar leider nicht erhalten. Bitte mache ihn erneut. Denke daran, ein kommentar startet immer mit dem '/' Zeichen" 
+        back["outputContexts"] = [
+          {  
+            "name":session + "/contexts/update",
+            "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/update_auswaehlen_kommentar_followup",
+            "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/kommentar",
+            "lifespanCount":1
+          },
+          {  
+            "name":session + "/contexts/name",
+            "lifespanCount":5
+          }
+        ] 
+
+        }
+
+   
+
+        // *** Hier für Eintragen
+    
+       // Bei eintragen_ (framework,skills,programmiersprache)
+       else if (array.includes((session + "/contexts/programmiersprache" || session + "/contexts/framework"|| session + "/contexts/skills")&& session + "/contexts/insert")){
+        back["fulfillmentText"] = "Für den Eintrag benötige ich von dir Vor und Nachname der Person, das level auf dem sich der Mitarbeiter befindet und die Technologie bzw. Fähigkeit die du vermerken möchtest. Du könntest mir folgenden Auftrag geben: _'Trage Robin Schulz auf Level 1 in Java ein'_ . Level zwischen 1 und 3 (höchste Level) können eingetragen werden. Du kannst mich jetzt nocheinmal fragen ... (Webhook)"
+        
+        if(array.includes(session + "/contexts/programmiersprache")){
+          road = "/contexts/programmiersprache"
+        }
+        else if(array.includes(session + "/contexts/framework")){
+          road = "/contexts/framework"
+        }
+        else if(array.includes(session + "/contexts/skills")){
+          road = "/contexts/skills"
+        }
+          
+
+        back["outputContexts"] =[ {  
+            "name":session + road,
+            "lifespanCount":1
+          }, {  
+            "name":session + "/contexts/insert",
+            "lifespanCount":3
+          },{  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
+            }
+        ]
       }
-    ] 
+      
 
-}
 
+      // *** Standardfallback ***
+
+        else  {
+          back["fulfillmentText"] = "jetzt habe ich leider toatal den Faden verloren :( Bitte sage mir wieder neu, was du machen möchtest. Wolltest du ein Update,eine Auskunft oder einen Eintrag machen? " 
+          back["outputContexts"] = [
+            {  
+              "name":session + "/contexts/option",
+              "lifespanCount":1
+            },
+            {  
+              "name":session + "/contexts/name",
+              "lifespanCount":5
+            }
+          ] 
+
+      }
+
+      
         console.log("Die Fallbackmessage :" + back["fulfillmentText"])
         console.log("Fallback zurückgegeben")
         return back
