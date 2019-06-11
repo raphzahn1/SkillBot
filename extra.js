@@ -2,7 +2,7 @@ var builder = require('./builder')
 var tools = require('./tools')
 var database = require('./db')
 var date = require('date-and-time')
-var id = 400
+
 
 module.exports = {
     getFunction : function(params,session){
@@ -195,17 +195,27 @@ module.exports = {
         })
         
     },
-    insert : function(name,req,session){
+    insert : function(req,session){
+        console.log("Eintragen_yes")
+         var name 
+         var outputContexts = req.body.queryResult.outputContexts
+         for ( var i=1; i < outputContexts.length; i++ ) {
+            if (outputContexts[i].name == session + "/contexts/name") {
+              name = outputContexts[i].parameters.user // "entry" is now the entry you were looking for
+              // ... do something useful with "entry" here...
+            }
+          }
+        name = "Tester"
+        console.log("Name: "+ name + "JSON"+outputContexts[i].parameters.user)
         console.log("In Insert aus Extra")
         date = date.format(new Date(),'DD.MM.YYYY')
-        id++ 
         var context = session + "/contexts/insert"
         var query
         var values
         var params
         var key
         var i = 1
-
+       
         // Hier werden jetzt die Daten aus dem Letzten Intent gesucht, die eingetragen werden sollen
 
         while (params == undefined){
@@ -217,9 +227,6 @@ module.exports = {
             i++
             }
         console.log("Prams Programmiersprache für den Check" + params.programmiersprache)
-        
-
-        // ACHTUNG! Datum muss noch angepasst werden
 
         /*
             -> Level muss angepasst werden
@@ -229,21 +236,36 @@ module.exports = {
 
         if (params.programmiersprache != undefined){
             var typ = "programmiersprache"
+            var info = database.database("SELECT mpe_id FROM MTA_PROG_ERFA_ZUO WHERE mpe_id =(SELECT max(mpe_id) FROM MTA_PROG_ERFA_ZUO)")
+            console.log("Die ID aus der Datenbankabfrage:" + JSON.stringify(info))
+            var s = info[1]["MPE_ID"] 
+            var id = Number(s) + 1
+            console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=[id,params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Test_Kommentar"]
+            values=[id,params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Anfang"]
 
-            // Noch nicht fertig!!!!!!!!!
         }else if (params.framework != undefined){
             var typ = "framework"
+            var info = database.database("SELECT mfe_id FROM MTA_FRAM_ERFA_ZUO WHERE mfe_id =(SELECT max(mfe_id) FROM MTA_FRAM_ERFA_ZUO)")
+            console.log("Die Info aus der Datenbankabfrage:" + JSON.stringify(info))
+            var s = info[1]["MFE_ID"] 
+            var id = Number(s) + 1
+            console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_fram_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=[id,params.mfe_fram_id,params.mfe_erfa_id,name,date,name,date,'2',params.mfe_mta_id,"Test_Kommentar"]
+            values=[id,params.mfe_fram_id,params.mfe_erfa_id,name,date,name,date,'2',params.mfe_mta_id,"Anfang"]
+
         }else if(params.skill != undefined){
             var typ = "skill"
+            var info = database.database("SELECT mse_id FROM MTA_SKIL_ERFA_ZUO WHERE mse_id =(SELECT max(mse_id) FROM MTA_SKIL_ERFA_ZUO)")
+            console.log("Die Info aus der Datenbankabfrage:" + JSON.stringify(info))
+            var s = info[1]["MSE_ID"] 
+            var id = Number(s) + 1
+            console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_skil_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
-            values=[id,params.mse_skil_id,params.mse_erfa_id,name,date,name,date,'2',params.mse_mta_id,"Test_Kommentar"]
+            values=[id,params.mse_skil_id,params.mse_erfa_id,name,date,name,date,'2',params.mse_mta_id,"Anfang"]
         }
         console.log("Der Query vor dem Datenbankeintrag:" + query +"und die Values " + values)
         console.log("value 0 einzelnes Experiment" + values[0])

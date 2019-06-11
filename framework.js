@@ -18,6 +18,8 @@ module.exports = {
             intent = "framework"
             // Basiswort für die Antworten festlegen -> "Zu (Programmiersprache oder Mitarbeiter) habe ich folgende Einträge gefunden"
             var basiswort
+
+            if(result[1] != undefined){
             if(params["framework"] != (undefined || "") && params["mitarbeiter"] == (undefined || "")){
               basiswort = result[1]["framework"]
               console.log(basiswort + "FW")
@@ -30,12 +32,13 @@ module.exports = {
             }else{
               basiswort = result[1]["mitarbeiter"]
               console.log(basiswort + "ELSE")
-            }
+            }}
+            console.log("Basiswort gefunden")
              // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
             var i = 1
             var context = ""
             var outputContexts = req.body.queryResult.outputContexts
-            console.log("Der Kontext aus Programmiersprache: "+JSON.stringify(req.body.queryResult.outputContexts))
+            console.log("Der Kontext aus Framework: "+JSON.stringify(req.body.queryResult.outputContexts))
             console.log("Unser Vergleichskontext:"+ session + "/contexts/update")
             console.log("Die Länge des Kontext" +outputContexts.length)
 
@@ -49,10 +52,10 @@ module.exports = {
             console.log("Kontext nach Konvertierung :" + context)
             console.log("Weiter in den Abgleich")
             if(result[1]== undefined){
-                message += "Ich konnte leider keinen Eintrag zu " + basiswort +" finden. Du kannst die Frage jetzt nocheinmal formulieren :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach _abbrechen_, dann kommst du zurück :back: zum Hauptmenü "
+                message += "Ich konnte leider keinen Eintrag zu deiner Suche finden. Du kannst die Frage jetzt nocheinmal formulieren :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach _abbrechen_, dann kommst du zurück :back: zum Hauptmenü "
             }else if(result[2] != undefined){
                 anzahl = 2
-                message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: \n\n "
+                message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: :rocket:\n\n "
                 message += builder.message (result,params,anzahl,intent)
 
             // Unterschiedliche Inhalte für -> insert
@@ -136,91 +139,98 @@ module.exports = {
               ]
              }
       }
+            back["fulfillmentText"]=message
             console.log("Message ist gesetzt")
             // test von input
             return back;
     },
     getFrameworkFU: function (req,session,params){
       console.log("FrameworkFU")
-            var entry
-            var context
-            i=1
-            console.log("Entry" + entry)
-            while (context == undefined){
-                 entry = req.body.queryResult.outputContexts[i].parameters.auswahl
-                 context = req.body.queryResult.outputContexts[i].parameters.result
-                i++
-            }
-            console.log("context glesen" + JSON.stringify(context))
-            var context = context[entry]
-            console.log("result ist ausgelesen" + JSON.stringify(context) )
-            var fu = params["anfragen_auskunft"] 
-        console.log("Parameter in frameworkFU:" + JSON.stringify(fu) + context["framework"])
-        var fulfillmentText = "Also, lass uns mal sehen... \n\n"
-        var message = {
+      var entry
+      var context
+      i=1
+      console.log("Entry" + entry)
+      while (context == undefined){
+           entry = req.body.queryResult.outputContexts[i].parameters.auswahl
+           context = req.body.queryResult.outputContexts[i].parameters.result
+          i++
       }
-
-        // vorher muss der Artikel gesucht werden
-        var artikel = params.artikel
-        console.log("Der Artikel = " + artikel)
-        console.log("Lass uns nach der Frage suchen")
-        var param
-        for (var key in fu){
-                param = fu[key]
-                console.log("Parameter "+ param+ "und Key:" + key)
-                 // Hier noch Kommentare zurückgeben 
-                 if(artikel == "wann" && param == "erstellt" || param == "erstelldatum") {
-                  fulfillmentText += "Der Eintrag ist vom *" + context['erstelldatum'] +"*."
-                } 
-                if((artikel == "wann" && param == "bearbeitet")|| param == "bearbeitungsdatum") {
-                   fulfillmentText += "Der Eintrag ist vom *" + context['erstelldatum'] +"*."
-                } 
-                if((artikel == "wer" && param == "erstellt") || param == "ersteller") {
-                  fulfillmentText += "*"+context['ersteller']+ " hat den Eintrag erstellt."
-                } 
-                if((artikel == "wer" && param == "bearbeitet") || param == "bearbeiter" ) {
-                  fulfillmentText += "*"+context['pfleger'] + "* hat den Eintrag bearbeitet."
-                } 
-                if(param == "level") {
-                  fulfillmentText += context['mitarbeiter'] + " ist auf dem Level *" +context['level']+"*."
-                } 
-                if(param == "beschreibung"){
-                      message["fulfillmentMessages"]  = [
-                        {
-                        "card": {
-                        "title": "Hier ist eine Beschreibung zu " + context["framework"]+ ": bitte klicken :sparkles:",
-                            "subtitle": " Willst du sonst noch etwas Wissen? Stelle mir die Frage, oder sage Nein",
-                              "imageUri": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wikipedia_logo_593.jpg",
-                            "buttons": [
-                                {
-                            "text": "button text",
-                            "postback": "https://de.wikipedia.org/wiki/" + context["framework"]
-                            }
-                          ]
+      console.log("Entry" + entry)
+      console.log("context glesen" + JSON.stringify(context))
+      var context = context[entry]
+      console.log("result ist ausgelesen" + JSON.stringify(context) )
+      var fu = params["anfragen_auskunft"] 
+  console.log("Parameter in FrameworkFU:" + JSON.stringify(fu) + context["framework"])
+  var fulfillmentText = "Also, lass uns mal sehen...:mag:\n\n"
+  var message = {
+}
+// vorher muss der Artikel gesucht werden
+  var artikel = params.artikel
+  console.log("Der Artikel = " + artikel)
+  console.log("Lass uns nach der Frage suchen")
+  var param
+  for (var key in fu){
+          param = fu[key]
+          console.log("Parameter "+ param+ "und Key:" + key)
+          // Hier noch Kommentare zurückgeben 
+          if(artikel == "wann" && param == "erstellt" || param == "erstelldatum") {
+            fulfillmentText += "Der Eintrag ist vom *" + context['erstelldatum'] +"*."
+          } 
+          if((artikel == "wann" && param == "bearbeitet")|| param == "bearbeitungsdatum") {
+            fulfillmentText += "Der Eintrag wurde am *" + context['erstelldatum'] +"*bearbeitet."
+          } 
+          if((artikel == "wer" && param == "erstellt") || param == "ersteller") {
+            fulfillmentText += "*"+context['ersteller']+ "* hat den Eintrag erstellt."
+          } 
+          if((artikel == "wer" && param == "bearbeitet") || param == "bearbeiter" ) {
+            fulfillmentText += "*"+context['pfleger'] + "* hat den Eintrag bearbeitet."
+          } 
+          if(param == "level") {
+            fulfillmentText += context['mitarbeiter'] + " ist in " + context["framework"]+" auf dem Level *" +context['level']+"*."
+          } 
+          if(param == "beschreibung"){
+            message["fulfillmentMessages"]  = [
+                   {
+                    "card": {
+                    "title": "Hier ist eine Beschreibung zu " + context["programmiersprache"]+ ": bitte klicken :sparkles:",
+                        "subtitle": " Willst du sonst noch etwas Wissen? Stelle mir die Frage, oder sage *Nein*",
+                         "imageUri": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wikipedia_logo_593.jpg",
+                        "buttons": [
+                            {
+                        "text": "button text",
+                        "postback": "https://de.wikipedia.org/wiki/" + context["programmiersprache"]
                         }
-                      }
-                  ]
-                } 
-                if (param == "kommentar"){
-                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: \n\n *"+context['kommentar'] + "* \n"
-                  message["fulfillmentText"] = fulfillmentText
-                  
-                }
-                 fulfillmentText += "\n Möchtest du weitere Fragen stellen? Wenn nicht kannst du einfach verneinen. :put_litter_in_its_place::x:"
-                 message["fulfillmentText"] = fulfillmentText
-                 message["outputContexts"] = [  
-                   {  
-                   "name":session + "/contexts/" + "eintrag" ,
-                   "lifespanCount":1,
-                   "parameters":{
-                        context
-                      }
+                      ]
+                    }
                   }
              ]
+          } 
+          if (param == "kommentar"){
+            fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: :arrow_down_small:\n\n _"+context['kommentar'] +"_ \n"
+          }
+           
+      }
+      fulfillmentText += "\n Möchtest du weitere Fragen stellen? Wenn nicht kannst du einfach verneinen. :put_litter_in_its_place::x:"
+           message["fulfillmentText"] = fulfillmentText
+           message["outputContexts"] = [  
+             {  
+             "name":session + "/contexts/" + "framework_FU" ,
+             "lifespanCount":1,
+             "parameters":{
+                  context
+                }
+            },
+            {  
+              "name":session + "/contexts/auswahl" ,
+              "lifespanCount":1
+             },
+             {  
+               "name":session + "/contexts/info" ,
+               "lifespanCount":1
+              }
+       ]
 
-            }
-            console.log( "raus")
-            return message
-        }
-      
+      console.log( "raus aus Framework_FU")
+      return message
+  }
 }

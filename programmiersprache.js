@@ -50,14 +50,12 @@ module.exports = {
           
         }
         console.log("Kontext nach Konvertierung :" + context)
-          
-
         console.log("Weiter in den Abgleich")
         if(result[1]== undefined){
-            message += "Ich konnte leider keinen Eintrag zu " + basiswort +" finden. Du kannst die Frage jetzt nocheinmal formulieren :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach _abbrechen_, dann kommst du zurück :back: zum Hauptmenü "
+            message += "Ich konnte leider keinen Eintrag zu " + basiswort +" finden. Du kannst die Frage jetzt nocheinmal formulieren. :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach *abbrechen*, dann kommst du zurück zum Hauptmenü.:back:  "
         }else if(result[2] != undefined){
             anzahl = 2
-            message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: \n\n "
+            message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: :rocket:\n\n "
             message += builder.message (result,params,anzahl,intent)
 
             // Unterschiedliche Inhalte für -> insert
@@ -123,7 +121,7 @@ module.exports = {
 
            // Unterschiedliche Inhalte für -> update
            else if(context == session + "/contexts/update"){
-            message += " gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein?"
+            message += " gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein? :point_up: :crystal_ball:"
             
             back["outputContexts"]= [  
                 {  
@@ -189,7 +187,7 @@ module.exports = {
             console.log("result ist ausgelesen" + JSON.stringify(context) )
             var fu = params["anfragen_auskunft"] 
         console.log("Parameter in ProgrammierspracheFU:" + JSON.stringify(fu) + context["programmiersprache"])
-        var fulfillmentText = "Also, lass uns mal sehen... \n\n"
+        var fulfillmentText = "Also, lass uns mal sehen...:mag:\n\n"
         var message = {
       }
       // vorher muss der Artikel gesucht werden
@@ -205,23 +203,23 @@ module.exports = {
                   fulfillmentText += "Der Eintrag ist vom *" + context['erstelldatum'] +"*."
                 } 
                 if((artikel == "wann" && param == "bearbeitet")|| param == "bearbeitungsdatum") {
-                  fulfillmentText += "Der Eintrag ist vom *" + context['erstelldatum'] +"*."
+                  fulfillmentText += "Der Eintrag wurde am *" + context['erstelldatum'] +"* bearbeitet."
                 } 
                 if((artikel == "wer" && param == "erstellt") || param == "ersteller") {
-                  fulfillmentText += "*"+context['ersteller']+ " hat den Eintrag erstellt."
+                  fulfillmentText += "*"+context['ersteller']+ "* hat den Eintrag erstellt."
                 } 
                 if((artikel == "wer" && param == "bearbeitet") || param == "bearbeiter" ) {
                   fulfillmentText += "*"+context['pfleger'] + "* hat den Eintrag bearbeitet."
                 } 
                 if(param == "level") {
-                  fulfillmentText += context['mitarbeiter'] + " ist auf dem Level *" +context['level']+"*."
+                  fulfillmentText += context['mitarbeiter'] + " ist in "+context["programmiersprache"]+" auf dem Level *" +context['level']+"*."
                 } 
                 if(param == "beschreibung"){
                   message["fulfillmentMessages"]  = [
                          {
                           "card": {
                           "title": "Hier ist eine Beschreibung zu " + context["programmiersprache"]+ ": bitte klicken :sparkles:",
-                              "subtitle": " Willst du sonst noch etwas Wissen? Stelle mir die Frage, oder sage Nein",
+                              "subtitle": " Willst du sonst noch etwas Wissen? Stelle mir die Frage, oder sage *Nein*",
                                "imageUri": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wikipedia_logo_593.jpg",
                               "buttons": [
                                   {
@@ -234,7 +232,7 @@ module.exports = {
                    ]
                 } 
                 if (param == "kommentar"){
-                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: \n\n _"+context['kommentar'] +"_ \n"
+                  fulfillmentText += "Für den Eintrag von "+ context['mitarbeiter'] + " habe ich folgende Kommentare gefunden: :arrow_down_small:\n\n _"+context['kommentar'] +"_ \n"
                 }
                  
             }

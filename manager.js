@@ -38,18 +38,18 @@ module.exports = {
 
         // *** framework ***
         if(intent == "framework")
-            query = framework.getFramework(session,params,intent);
+            query = framework.getFramework(session,params,intent,req);
 
         if(intent == "framework_FU"){
             query = framework.getFrameworkFU(req,session,params);
         }
 
         // *** skill ***            
-        if(intent == "skill")
-            query = skill.getSkill(params,intent);
+        if(intent == "skills")
+            query = skill.getSkill(session,params,intent,req);
 
-        if(intent == "skill_FU")
-            query = skill.getSkillFU(params,intent);  
+        if(intent == "skills_FU")
+            query = skill.getSkillFU(req,session,params);  
 
         // *** Programmiersprache ***
         if(intent == "programmiersprache")
@@ -64,11 +64,7 @@ module.exports = {
 
         // *** Eintrag ***
         if(intent == "eintragen_yes"){
-            console.log("Eintragen_yes yes")
-           // var name = req.body.outputContexts[2].parameters.user
-            var name = "Tester"
-            console.log("Name: "+ name)
-            query = extra.insert(name,req,session);
+            query = extra.insert(req,session);
         } 
 
         //*** Der Webhook für den Fallbackintent

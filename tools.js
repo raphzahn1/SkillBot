@@ -39,7 +39,7 @@ module.exports = {
             if (intent == "programmiersprache")
             params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"mpe_erfa_id":'))
 
-            if (intent == "skill")
+            if (intent == "skills")
             params = JSON.parse(JSON.stringify(params).split('"erfahrung":').join('"mse_erfa_id":'))
            
         }
@@ -64,13 +64,13 @@ module.exports = {
                 console.log("Framework:" + params['mfe_fram_id'])
         }
 
-      if (undefined != params["skill"] && "" != params["skill"]){
+      if (undefined != params["skills"] && "" != params["skills"]){
           console.log("In skills")
-          var query = "Select skill_id from skills where skil_bezeichnung = '" + params["skill"] + "'" 
+          var query = "Select skil_id from skills where skil_bezeichnung = '" + params["skills"] + "'" 
           var skill = database.database(query)
           console.log("Die Prekonditions:"+skill[1].SKIL_ID)
-          params["skill"] = skill[1].SKIL_ID
-          params = JSON.parse(JSON.stringify(params).split('"skill":').join('"mse_skil_id":'))
+          params["skills"] = skill[1].SKIL_ID
+          params = JSON.parse(JSON.stringify(params).split('"skills":').join('"mse_skil_id":'))
           console.log("SKill:" + params['mse_skil_id'])
       }     
 
@@ -186,7 +186,7 @@ module.exports = {
             case "programmiersprache" || "programmiersprachefu":
             output += " mta_prog_erfa_zuo "
             break;
-            case "skill" || "skillfu":
+            case "skills" || "skillfu":
             output += " mta_skil_erfa_zuo "
             break;
             case "framework" || "frameworkfu":
