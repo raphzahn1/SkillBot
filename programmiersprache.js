@@ -1,10 +1,17 @@
+/**
+  Import:
+    database: Modul für die Persistence-Verbindung zur Datenbank BA S.57
+    tools: Tools enthält Zusatzmethoden u.a. für das Umwandeln der der Parameternamen in Tabellenbezeichnungen
+    builder: Modul für das Zusammenbauen der Antwort für Dialogflow 
+*/ 
+
+
 var database = require('./db')
 var tools = require('./tools')
 var builder = require('./builder')
 module.exports = {
-    getProgrammiersprache: function(session,params,intent,req) {
-        /**  Hier ist die Methode für das Liefern von Einträgen bei Programmiersprachen -> BA S.56 */ 
-
+   /**  Hier ist die Methode für das Liefern von Einträgen bei Programmiersprachen -> BA S.56 */
+    getProgrammiersprache: function(session,params,intent,req) { 
         console.log("In getProgrammiersprache")
         console.log("Es geht in preconditions")
         // Die Entities aus Dialogflow müssen in die Bezeichnungen der Datenbank-Spalten umgewandelt werden
@@ -277,6 +284,7 @@ module.exports = {
         // Senden der Message -> Manager -> Webserver
         return back;
     },
+    //** Methode für Mitarbeitervergleich: Wurde verworfen  */
     getProgrammierspracheVS: function(session,params,intent){
       console.log("In Programmiersprache Vergleich")
       var array = []
@@ -302,6 +310,8 @@ module.exports = {
         // test von input
         return back;
     },
+
+    //**  Hier werden Einträge geliefert -> siehe BA S.56  *
     getProgrammierspracheFU: function (req,session,params){
       console.log("ProgrammierspracheFU")
             var entry

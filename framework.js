@@ -1,3 +1,10 @@
+/**
+  Import:
+    database: Modul für die Persistence-Verbindung zur Datenbank BA S.57
+    tools: Tools enthält Zusatzmethoden u.a. für das Umwandeln der der Parameternamen in Tabellenbezeichnungen
+    builder: Modul für das Zusammenbauen der Antwort für Dialogflow 
+*/ 
+
 var database = require('./db')
 var tools = require('./tools')
 var builder = require('./builder')
@@ -173,8 +180,9 @@ module.exports = {
             // Senden der Message -> Manager -> Webserver
             return back;
     },
+    //**  Hier werden Einträge geliefert -> siehe BA S.56  *
     getFrameworkFU: function (req,session,params){
-      //**  Hier werden Einträge geliefert -> siehe BA S.56  *
+      
       console.log("FrameworkFU")
       var entry
       var context

@@ -1,7 +1,5 @@
 
 var database = require('./db');
-
-
 module.exports = {
   // ********** tools *****
     // hier werden die Parameter aus Dialogflow in Tabellennamen konvertiert 
@@ -81,9 +79,9 @@ module.exports = {
     },
 
 
-  // converter ID => Name
-    converter:function(result){
-      // ** converter wandelt Spaltennamen in Dialogflow Entities um *
+    // converter ID => Name
+   // ** converter wandelt Spaltennamen in Dialogflow Entities um *
+    converter:function(result){  
       console.log("in converter")
       var counter = 1
        while(result[counter] != undefined){
@@ -178,8 +176,9 @@ module.exports = {
      }
      return result
     },
+      //**  Counter generiert das Query */
     counter: function (params,intent){
-      // Counter generiert das Query
+    
       
         console.log("hallo aus counter")
         console.log("String: " + params["ID"])
@@ -306,9 +305,9 @@ module.exports = {
         }
         return result[counter]
     },
-
+    // ** Wandelt SPaltenschlüssel in Namen um *
     validator: function(result,validator,counter){
-          // ** Wandelt SPaltenschlüssel in Namen um *
+          
       console.log("In validator")
               
                     index = 0
