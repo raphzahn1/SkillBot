@@ -3,16 +3,21 @@ var tools = require('./tools')
 var builder = require('./builder')
 module.exports = {
     getProgrammiersprache: function(session,params,intent,req) {
+        /**  Hier ist die Methode für das Liefern von Einträgen bei Programmiersprachen -> BA S.56 */ 
+
         console.log("In getProgrammiersprache")
         console.log("Es geht in preconditions")
+        // Die Entities aus Dialogflow müssen in die Bezeichnungen der Datenbank-Spalten umgewandelt werden
         var preconditions = tools.preconditions(params,intent)
         console.log("Es geht in database")
+        // Die Anfrage an die Datenbank
         var result = database.database(tools.counter(preconditions,intent))
         console.log("Ergebnis aus der Datenbank: " + JSON.stringify(result))
+        // Datenbank Objekte werden in Format für Dialogflow gebracht
         result = tools.converter(result)
         console.log("Ergebnis nach Konvertierung:" + JSON.stringify(result))
 
-        // Das überschreiben der Nachricht wird vorbereitet
+        // Das Schreiben der Nachricht wird vorbereitet
         var back = {
         }
         var anzahl
@@ -20,6 +25,7 @@ module.exports = {
         intent = "programmiersprache"
         // Basiswort für die Antworten festlegen -> "Zu (Programmiersprache oder Mitarbeiter) habe ich folgende Einträge gefunden"
         var basiswort
+        if(result[1] != undefined){
         if(params["programmiersprache"] != (undefined || "") && params["mitarbeiter"] == (undefined || "")){
           basiswort = result[1]["programmiersprache"]
           console.log(basiswort + "PS")
@@ -32,8 +38,9 @@ module.exports = {
         }else{
           basiswort = result[1]["mitarbeiter"]
           console.log(basiswort + "ELSE")
-        }
-        
+        }}
+        console.log("Basiswort gefunden")
+        // Kontext muss ausgelesen werden, Um die Richtige Antwort für die unterschiedlichen Intents auszulesen
         // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
         var i = 1
         var context = ""
@@ -43,16 +50,31 @@ module.exports = {
         console.log("Die Länge des Kontext" + outputContexts.length)
 
         for ( var i=1; i < outputContexts.length; i++ ) {
-          if (outputContexts[i].name == session + "/contexts/update" || session + "/contexts/info" ) {
+          if (outputContexts[i].name == session + "/contexts/update" || outputContexts[i].name == session + "/contexts/info" ) {
             var context = outputContexts[i].name ; // "entry" is now the entry you were looking for
             // ... do something useful with "entry" here...
           }
-          
         }
+
+        /* !! Ab hier werden die Antworten für Dialogflow gebaut: BA S.56f
+           Eine Antwort besteht aus:
+            - message: Antwort
+            - back: Der Outputkontext für Dialogflow BA S.54 
+            - (Optional) Rich Replies als JSON
+        
+        */
         console.log("Kontext nach Konvertierung :" + context)
         console.log("Weiter in den Abgleich")
+        // Falls kein Eintrag gefunden:
         if(result[1]== undefined){
-            message += "Ich konnte leider keinen Eintrag zu " + basiswort +" finden. Du kannst die Frage jetzt nocheinmal formulieren. :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach *abbrechen*, dann kommst du zurück zum Hauptmenü.:back:  "
+            message += "Ich konnte leider keinen Eintrag zu deiner Suche finden. Du kannst die Frage jetzt nocheinmal formulieren. :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach *abbrechen*, dann kommst du zurück zum Hauptmenü.:back:  "
+            back["outputContexts"]= [
+                {  
+                  "name":session + "/contexts/" + context ,
+                  "lifespanCount":5,
+              }
+            ]
+        // Falls mehrere Einträge gefunden:
         }else if(result[2] != undefined){
             anzahl = 2
             message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: :rocket:\n\n "
@@ -60,7 +82,7 @@ module.exports = {
 
             // Unterschiedliche Inhalte für -> insert
             if(context == session + "/contexts/info"){
-              message += "Zu welchen Eintrag möchtest du genauere Informationen? :point_up: :crystal_ball:"
+              message += "Zu welchen Eintrag möchtest du genauere Informationen? Sage bitte die Nummer des Eintrags z.B. Nummer 3:point_up: :crystal_ball:"
             back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "programmiersprache_fu" ,
@@ -72,13 +94,16 @@ module.exports = {
             {  
               "name":session + "/contexts/" + "12oder3" ,
               "lifespanCount":1
+            },{  
+              "name":session + "/contexts/" + "info",
+              "lifespanCount":5,
             }
             ]
             }
 
             // Unterschiedliche Inhalte für -> update
            else if(context == session + "/contexts/update"){
-              message += "Bitte, wähle den Eintrag aus, für den du das Update durchführen möchtest"
+              message += "Bitte, wähle die Nummer des Eintrag aus, für den du das Update durchführen möchtest."
               back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "update" ,
@@ -94,15 +119,17 @@ module.exports = {
             ]
             }
   
-        }else if(result[1] != undefined){
+        }
+        /* Falls ein Eintrage gefunden:
+        */
+        else if(result[1] != undefined){
           anzahl = 1
           message += "Ich habe einen Eintrag zu " + basiswort 
           message += builder.message (result,params,anzahl,intent)
 
            // Unterschiedliche Inhalte für -> insert
-           if(context == session + "/contexts/info"){
+          if(context == session + "/contexts/info"){
           message += " gefunden. Was möchtest du zu dem Eintrag wissen? :point_up: :crystal_ball:"
-          
           back["outputContexts"]= [  
               {  
               "name":session + "/contexts/" + "programmiersprache_fu" ,
@@ -110,19 +137,91 @@ module.exports = {
               "parameters":{
                 result,
                 "auswahl":1
-            }
+                }
               },
               {  
                 "name":session + "/contexts/" + "auswahl" ,
                 "lifespanCount":1
-              }
+              },{  
+                "name":session + "/contexts/" + "info" ,
+                "lifespanCount":5,
+               }
             ]
+            back["payload"] = {
+              "slack":{
+                
+                  "text": message,
+                  "attachments": [
+                    {
+                      "text": "Was möchtest du wissen?",
+                      "fallback": "leider kann ich dir gerade nicht helfen",
+                      "callback_id": "option_auswahl",
+                      "color": "#3AA3E3",
+                      "attachment_type": "default",
+                      "actions": [
+                        {
+                          "name": "Kommentar",
+                          "text": "Kommentar",
+                          "type": "button",
+                          "value": "kommentar"
+                        },
+                        {
+                          "name": "Level",
+                          "text": "Level",
+                          "type": "button",
+                          "value": "level"
+                        },{
+                          "name": "Bearbeiter",
+                          "text": "Bearbeiter",
+                          "type": "button",
+                          "value": "bearbeiter"
+                        },
+                        {
+                          "name": "Ersteller",
+                          "text": "Ersteller",
+                          "type": "button",
+                          "value": "ersteller"
+                        },
+                        {
+                          "name": "Erstelldatum",
+                          "text": "Erstelldatum",
+                          "type": "button",
+                          "value": "erstelldatum"
+                        }
+                      ]
+                    }, {
+                      "text": "",
+                      "fallback": "leider kann ich dir gerade nicht helfen",
+                      "callback_id": "option_auswahl2",
+                      "color": "#3AA3E3",
+                      "attachment_type": "default",
+                      "actions": [
+                        {
+                          "name": "Bearbeitungsdatum",
+                          "text": "Bearbeitungsdatum",
+                          "type": "button",
+                          "value": "bearbeitungsdatum"
+                        },
+                        {
+                          "name": "Skill-Beschreibung",
+                          "text": "Skill-Beschreibung",
+                          "type": "button",
+                          "value": "skillbeschreibung"
+                        }
+                      ]
+                    }
+                  ]
+              }
+              
+             }
            }
+
+           
 
            // Unterschiedliche Inhalte für -> update
            else if(context == session + "/contexts/update"){
-            message += " gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein? :point_up: :crystal_ball:"
-            
+            message += " gefunden. Du kannst jetzt einen neuen *Kommentar* machen, oder das *Erfahrungslevel* verändern. :point_up: :crystal_ball:"
+
             back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "update" ,
@@ -137,12 +236,45 @@ module.exports = {
                   "lifespanCount":1
                 }
               ]
+              back["payload"] = {
+                "slack":{
+                  
+                    "text": message,
+                    "attachments": [
+                      {
+                        "text": "Welche der beiden Optionen möchtest du?",
+                        "fallback": "leider kann ich dir gerade nicht helfen",
+                        "callback_id": "option_update",
+                        "color": "#3AA3E3",
+                        "attachment_type": "default",
+                        "actions": [
+                          {
+                            "name": "Kommentar",
+                            "text": "Kommentar",
+                            "type": "button",
+                            "value": "kommentar"
+                          },
+                          {
+                            "name": "Level",
+                            "text": "Level",
+                            "type": "button",
+                            "value": "level"
+                          }
+                        ]
+                      }
+                    ]
+                }
+                
+               }
+              
+
              }
-      }
-      
+        }
+        console.log(message)
+        // Daten werden Antworten Objekt geschrieben
         back["fulfillmentText"]=message
         console.log("Message ist gesetzt")
-        // test von input
+        // Senden der Message -> Manager -> Webserver
         return back;
     },
     getProgrammierspracheVS: function(session,params,intent){

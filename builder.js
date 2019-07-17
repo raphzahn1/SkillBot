@@ -1,23 +1,9 @@
 module.exports={
+      // ** Baut Struktur des JSON zusammen *
     builder: function(outputContexts,message){
+        // Wurde Programmiert um Code zu sparen
             data= {
               "fulfillmentText": message,
-              // "fulfillmentMessages": [
-              //   {
-              //     "card": {
-              //       "title": "card title",
-              //       "subtitle": "card text",
-              //       "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-              //       "buttons": [
-              //         {
-              //           "text": "button text",
-              //           "postback": "https://assistant.google.com/"
-              //         }
-              //       ]
-              //     }
-              //   }
-              // ]
-              
           }
           if(outputContexts != null){
             data["outputContexts"] = outputContexts
@@ -25,7 +11,9 @@ module.exports={
           console.log("Data aus builder:"+ JSON.stringify(data))
             return data
         },
+       // ** Hier werden die einzelnen Zeilen der Antwort in eine Message geschrieben *
      message: function(result,params, anzahl, intent){
+          // Jede Zeile enthält einen Datenbankeintrag
           console.log("Es geht in Message")
           console.log ("Daten für die message"+JSON.stringify(result) + "Intent = " +intent)
           var message =""
@@ -73,13 +61,13 @@ module.exports={
                 }
 
                 
-                if (intent == "skill"){
+                if (intent == "skills"){
 
                   if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
                     message+= " mit *" + result[i].mitarbeiter+"*"
 
-                  if(params["skill"] == undefined ||  params["skill"] == "" && result[i].skill != undefined )
-                      message+= " zu *" + result[i].skill+"*"
+                  if(params["skills"] == undefined ||  params["skills"] == "" && result[i].skill != undefined )
+                      message+= " zu *" + result[i].skills+"*"
 
                   if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
                     message+= " auf dem Erfahrungslevel *" + result[i].erfahrung+"*"
@@ -117,13 +105,13 @@ module.exports={
                     }
 
         
-                    if (intent == "skill"){
+                    if (intent == "skills"){
 
                       if(params["mitarbeiter"] == undefined||  params["mitarbeiter"] == "" && result[i].mitarbeiter != undefined)
                         message+= " mit *" + result[i].mitarbeiter +"*"
 
-                      if(params["skill"] == undefined ||  params["skill"] == "" && result[i].skill != undefined )
-                          message+= " zu dem Skill *" + result[i].skill +"*"
+                      if(params["skills"] == undefined ||  params["skills"] == "" && result[i].skill != undefined )
+                          message+= " zu dem Skill *" + result[i].skills +"*"
 
                       if(params["erfahrung"] == undefined ||  params["erfahrung"] == "" && result[i].erfahrung != undefined)
                         message+= " auf dem Erfahrungslevel *" + result[i].erfahrung+"*"
@@ -133,20 +121,8 @@ module.exports={
           return message
         },
         compare: function(array,params){
+          // Funktion für den Vergleich von Mitarbeitern: Nicht implementiert 
 
         }
-    //   cardmessage: function(params,result,intent){
-    //     // Der card builder
-    //            counter = 0
-    //            var cardentry
-    //            while(result[counter] != undefined){
-    //            data = result[counter]
-    //            cardentry +=  result[counter][1]+ "" + []
-    //            console.log ("Eintrag: "+counter + "ist " + JSON.stringify(parameters[counter]))
-               
-    //           }
-    //        
-    //     }
-
      
 }

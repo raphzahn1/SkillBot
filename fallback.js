@@ -1,5 +1,7 @@
 module.exports = {
      fallback : function(req,session){
+       //** Fallback Methode */
+       // Sendet für unterschiedliche Kontexte unterschiedliche Fallback-Nachrichten
          console.log("In fallback")
         var road
         var array = []
@@ -11,7 +13,9 @@ module.exports = {
               array.push(name)
           }
         console.log("Das fertige Array:"+array)
-        // Fallbacks für:
+
+
+        // Fallbacks für folgende Intents:
 
         //welcome
         if (array.includes(session + "/contexts/defaultwelcome")){
@@ -25,7 +29,7 @@ module.exports = {
       }
 
         //option
-       else if (array.includes(session + "/contexts/option")){
+       else if (array.includes(session + "/contexts/option") && (array.includes(session + "/contexts/kategorie") != true)){
             back["fulfillmentText"] = "Bitte sage mir, wie ich dir Helfen kann. Am einfachsten sagst du hierfür die Schlüsselwörter für die verschiedenen Pfade: :simple_smile: :point_right: *Update*, *Auskunft* oder *Eintrag*  ?(Aus dem Webhook)"
             back["outputContexts"]= [  
               {  
@@ -132,11 +136,17 @@ module.exports = {
         back["outputContexts"] =[ {  
             "name":session + road,
             "lifespanCount":1
-          }
-          ,
+          } ,
             {  
               "name":session + "/contexts/name",
               "lifespanCount":5
+            },
+            {  
+              "name":session + "/contexts/read",
+              "lifespanCount":1
+            },{  
+              "name":session + "/contexts/info",
+              "lifespanCount":3
             }
         ]
       }
@@ -265,6 +275,9 @@ module.exports = {
             {  
               "name":session + "/contexts/name",
               "lifespanCount":5
+            }, {  
+              "name":session + "/contexts/read",
+              "lifespanCount":3
             }
           ]
         }

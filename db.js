@@ -1,7 +1,8 @@
 
-
+// Die Persistence Klasse
 module.exports = {
         database: function(query){
+          // Datenbank Funktion für die Suche der Einträge
             console.log("Es geht in Datenbankabfrage")
             var oracledb = require ('oracledb');
             const deasync = require('deasync');
@@ -81,6 +82,7 @@ module.exports = {
         return o
         },
         insert: async function(query,values){
+            // Methode für Datenbankeintrag
             console.log("Es geht in Datenbankeintrag")
             const oracledb = require('oracledb');
             let connection, result;

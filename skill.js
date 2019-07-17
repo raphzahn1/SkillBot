@@ -1,17 +1,27 @@
+/**
+  Import:
+    database: Modul für die Persistence-Verbindung zur Datenbank BA S.57
+    tools: Tools enthält Zusatzmethoden u.a. für das Umwandeln der der Parameternamen in Tabellenbezeichnungen
+    builder: Modul für das Zusammenbauen der Antwort für Dialogflow 
+*/ 
+
 var database = require('./db')
 var tools = require('./tools')
 var builder = require('./builder')
 module.exports = {
     getSkill: function(session,params,intent,req) {
+       /** Hier ist die Methode für das Liefern von Einträgen bei Frameworks -> BA S.56 */ 
         console.log("In getSkill")
         console.log("Es geht in preconditions")
+        // Die Entities aus Dialogflow müssen in die Bezeichnungen der Datenbank-Spalten umgewandelt werden
         var preconditions = tools.preconditions(params,intent)
         console.log("Es geht in database")
+        // Die Anfrage an die Datenbank
         var result = database.database(tools.counter(preconditions,intent))
         console.log("Ergebnis aus der Datenbank: " + JSON.stringify(result))
+        // Datenbank Objekte werden in Format für Dialogflow gebracht
         result = tools.converter(result)
         console.log("Ergebnis nach Konvertierung:" + JSON.stringify(result))
-
         // Das überschreiben der Nachricht wird vorbereitet
         var back = {
         }
@@ -35,7 +45,7 @@ module.exports = {
                 console.log(basiswort + "ELSE")
               }      
         }
-        
+        // Kontext muss ausgelesen werden, Um die Richtige Antwort für die unterschiedlichen Intents auszulesen 
         // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
         var i = 1
         var context = ""
@@ -50,10 +60,24 @@ module.exports = {
             // ... do something useful with "entry" here...
           }
         }
+        /* !! Ab hier werden die Antworten für Dialogflow gebaut: BA S.56f
+                  Eine Antwort besteht aus:
+                - message: Antwort
+                - back: Der Outputkontext für Dialogflow BA S.54 
+                - (Optional) Rich Replies als JSON
+            
+            */
         console.log("Kontext nach Konvertierung :" + context)
         console.log("Weiter in den Abgleich")
         if(result[1]== undefined){
             message += "Ich konnte leider keinen Eintrag zu deiner Suche finden. Du kannst die Frage jetzt nocheinmal formulieren. :grey_question: Falls du die Anfrage abbrechen möchtest sage einfach *abbrechen*, dann kommst du zurück zum Hauptmenü.:back:  "
+            back["outputContexts"]= [
+                {  
+                  "name":session + "/contexts/" + context ,
+                  "lifespanCount":5,
+              }
+            ]
+           // Falls mehrere Einträge gefunden
         }else if(result[2] != undefined){
             anzahl = 2
             message = "Ich habe mehrere Inhalte zu " + basiswort +" gefunden: :rocket:\n\n "
@@ -61,7 +85,7 @@ module.exports = {
 
             // Unterschiedliche Inhalte für -> insert
             if(context == session + "/contexts/info"){
-              message += "Zu welchen Eintrag möchtest du genauere Informationen? :point_up: :crystal_ball:"
+              message += "Zu welchen Eintrag möchtest du genauere Informationen? Sage bitte die Nummer des Eintrags z.B. Nummer 3:point_up: :crystal_ball:"
             back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "skills_FU" ,
@@ -73,13 +97,18 @@ module.exports = {
             {  
               "name":session + "/contexts/" + "12oder3" ,
               "lifespanCount":1
+            },
+            {  
+                "name":session + "/contexts/" + "info" ,
+                "lifespanCount":5,
             }
+            
             ]
             }
 
             // Unterschiedliche Inhalte für -> update
            else if(context == session + "/contexts/update"){
-              message += "Bitte, wähle den Eintrag aus, für den du das Update durchführen möchtest"
+              message += "Bitte, wähle die Nummer des Eintrages aus, für den du das Update durchführen möchtest"
               back["outputContexts"]= [  
                 {  
                 "name":session + "/contexts/" + "update" ,
@@ -91,10 +120,11 @@ module.exports = {
             {  
               "name":session + "/contexts/" + "12oder3" ,
               "lifespanCount":1
-            }
+            },
+            
             ]
             }
-  
+       /* Falls ein Eintrage gefunden:*/
         }else if(result[1] != undefined){
           anzahl = 1
           message += "Ich habe einen Eintrag zu " + basiswort 
@@ -111,18 +141,22 @@ module.exports = {
               "parameters":{
                 result,
                 "auswahl":1
-            }
+               }
               },
               {  
                 "name":session + "/contexts/" + "auswahl" ,
                 "lifespanCount":1
-              }
+              },
+              {  
+                "name":session + "/contexts/" + "info" ,
+                "lifespanCount":5,
+            }
             ]
            }
 
            // Unterschiedliche Inhalte für -> update
            else if(context == session + "/contexts/update"){
-            message += " gefunden. Du kannst jetzt einen neuen Kommentar machen, oder das Erfahrungslevel verändern. Was soll es sein? :point_up: :crystal_ball:"
+            message += " gefunden. Du kannst jetzt einen neuen *Kommentar* machen, oder das *Erfahrungslevel* verändern. Welche der beiden Optionen möchtest du? :point_up: :crystal_ball:"
             
             back["outputContexts"]= [  
                 {  
@@ -140,18 +174,24 @@ module.exports = {
               ]
              }
       }
-      
+        console.log(message)
+        // Daten werden Antworten Objekt geschrieben
         back["fulfillmentText"]=message
         console.log("Message ist gesetzt")
-        // test von input
+          // Senden der Message -> Manager -> Webserver
         return back;
     },
-    getSkillsFU: function (req,session,params){
+    //**  Hier werden Einträge geliefert -> siehe BA S.56  *
+    getSkillFU: function (req,session,params){ 
       console.log("SkillFU")
             var entry
             var context
             i=1
             console.log("Entry" + entry)
+             /* Einträge werden ausgewählt 
+            entry: Der Eintrag, der von dem User in Dialogflow ausgewählt
+            context: Alle Einträge, die zuvor in dem Intent Programmiersprachen gefunden wurde
+              */
             while (context == undefined){
                  entry = req.body.queryResult.outputContexts[i].parameters.auswahl
                  context = req.body.queryResult.outputContexts[i].parameters.result
@@ -166,10 +206,12 @@ module.exports = {
         var fulfillmentText = "Also, lass uns mal sehen...:mag:\n\n"
         var message = {
       }
-      // vorher muss der Artikel gesucht werden
+      // vorher muss der Artikel gesucht werden -> wann, wer
         var artikel = params.artikel
         console.log("Der Artikel = " + artikel)
         console.log("Lass uns nach der Frage suchen")
+        // Der Artikel ist gefunden jetzt wird der passende Inhalt gesucht
+  // Die Kombination aus Artikel und Key-Word ergibt das Ergebnis
         var param
         for (var key in fu){
                 param = fu[key]
@@ -233,6 +275,7 @@ module.exports = {
              ]
 
             console.log( "raus aus Skill_FU")
+            // Die Antwort wird versendet
             return message
         }
 }

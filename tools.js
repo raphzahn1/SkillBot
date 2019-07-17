@@ -4,10 +4,12 @@ var database = require('./db');
 
 module.exports = {
   // ********** tools *****
+    // hier werden die Parameter aus Dialogflow in Tabellennamen konvertiert 
     // Name => ID
     preconditions: function (params,intent){
       console.log("In Preconditions")
       console.log("Intent in prekonditions = " + intent)
+      // Parameter wird gesucht
         if (undefined != params["mitarbeiter"] && "" != params["mitarbeiter"]){
             console.log("In mitarbeiter")
             var query = "Select mpr_mta_id from mitarbeiter_properties where mpr_erstellt_von = '" + params["mitarbeiter"] + "'" 
@@ -21,7 +23,7 @@ module.exports = {
             if (intent == "programmiersprache")
             params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mpe_mta_id":'))
 
-            if (intent == "skill")
+            if (intent == "skills")
             params = JSON.parse(JSON.stringify(params).split('"mitarbeiter":').join('"mse_mta_id":'))
         } 
         
@@ -73,15 +75,15 @@ module.exports = {
           params = JSON.parse(JSON.stringify(params).split('"skills":').join('"mse_skil_id":'))
           console.log("SKill:" + params['mse_skil_id'])
       }     
-
-      // Hier muss noch ein Case eingefügt werden, der Felder mit z.B. framework = "" löscht 
         console.log("Raus aus Preconditions")
+        // Parameter gesetzt
           return params
     },
 
 
   // converter ID => Name
     converter:function(result){
+      // ** converter wandelt Spaltennamen in Dialogflow Entities um *
       console.log("in converter")
       var counter = 1
        while(result[counter] != undefined){
@@ -177,6 +179,8 @@ module.exports = {
      return result
     },
     counter: function (params,intent){
+      // Counter generiert das Query
+      
         console.log("hallo aus counter")
         console.log("String: " + params["ID"])
         var params 
@@ -214,6 +218,7 @@ module.exports = {
     // *********** Die Methoden für den Converter *************
     
     // Wandelt keys in konkrete Namen um 
+    // Für unterschieldiche Entities unterschiedliche Methoden
 
     programmiersprache : function (counter,index,key,result){
       var programmiersprache = database.database("Select prog_id,prog_bezeichnung from programmiersprachen")
@@ -275,9 +280,6 @@ module.exports = {
       var mitarbeiter = database.database("Select mpr_mta_id,mpr_erstellt_von from mitarbeiter_properties")
       var i = 1
       while(mitarbeiter[i] != undefined){
-        //console.log(i+"Durchgang")
-        //console.log("Der Scheiß key:"+key)
-        //console.log("Das Scheiß Ergebnis:"+mitarbeiter[i]['MPR_MTA_ID'])
         if (mitarbeiter[i]['MPR_MTA_ID'] === key){
           console.log('der Key wurde gefunden')
           result[counter][index] = mitarbeiter[i]['MPR_ERSTELLT_VON']
@@ -293,9 +295,6 @@ module.exports = {
       var i = 1
       console.log("Erfahrung am Anfang:" + JSON.stringify(result[counter]))
       while(erfahrung[i] != undefined){
-       // console.log(i+"Durchgang")
-        //console.log("Der Scheiß key:"+key)
-        //console.log("Das Scheiß Ergebnis:"+erfahrung[i]['ERFA_ID'])
         if (erfahrung[i]['ERFA_ID'] === key){
           console.log('der Key wurde gefunden')
           result[counter][index] = erfahrung[i]['ERFA_BEZEICHNUNG']
@@ -307,8 +306,9 @@ module.exports = {
         }
         return result[counter]
     },
-    // *** Wandelt SPaltenschlüssel in Namen um
+
     validator: function(result,validator,counter){
+          // ** Wandelt SPaltenschlüssel in Namen um *
       console.log("In validator")
               
                     index = 0
@@ -339,8 +339,9 @@ module.exports = {
               return result[counter]
     },
     contextButtler: function(req,name){
+      // **Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info *
       console.log("In Kontextbuttler")
-      // Finden des richtigen Kontext, damit der Chatbot weiß ob update oder info
+      
       var i = 1
       var context = ""
       var outputContexts = req.body.queryResult.outputContexts

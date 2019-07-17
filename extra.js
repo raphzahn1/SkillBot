@@ -1,11 +1,13 @@
 var builder = require('./builder')
 var tools = require('./tools')
 var database = require('./db')
-var date = require('date-and-time')
+var datum = require('date-and-time')
 
 
 module.exports = {
+    // *** Methode: Kontext wird nach Auswahl des Benutzers generiert **
     getFunction : function(params,session){
+        // z.B. Benutzer wählt Programmiersprache -> Kontext Programmiersprache
         console.log("in getFunction")
            // context = params["auswahl_funktion"]
             for (var key in params){
@@ -29,7 +31,10 @@ module.exports = {
             var message = builder.builder(outputContexts,message)
         
         return message
-    },getUpdate : function(params,session){
+    },
+      // *** hier wird das Update gesetzt **
+    getUpdate : function(params,session){
+      
         console.log("in getFunction")
 
             var funktion
@@ -60,8 +65,6 @@ module.exports = {
           
         }
         console.log("Kontext nach Konvertierung :" + context)
-
-                
           // Kontext wird für Kommentar und Level verändert
 
             if(funktion == "eintragen" || auskunft == "kommentar"){
@@ -95,7 +98,9 @@ module.exports = {
         
         return message
     },
+    // *** Methode für das Merken der Einträge **
     save : function(req,session){
+        // Einträge werden in Kontexte gespeichert und an Dialogflow gesendet
         console.log("in save")
         var check = undefined
         const deasync = require('deasync');
@@ -149,6 +154,7 @@ module.exports = {
       ] 
         return message
     },
+    //** Gibt Datum anhand des Namens aus */
     getParamsByName : function(name, data){
         
         var check = undefined
@@ -161,6 +167,7 @@ module.exports = {
         deasync.loopWhile(() => check == undefined);
         return data
     },
+    // ** Methode für das Senden der E-mail mit Einträgen*
     send : function(req,session){
         var name = session + "/contexts/info"
         var data = req.body.queryResult.outputContexts
@@ -180,11 +187,12 @@ module.exports = {
                 pass: process.env.GMAIL_PASS
             }
         })
+        // Mail wird in JSON Objekt geschrieben
         let mailOptions = {
             from: '"Raphael Palombo" <raphzahn1@gmail.com>',
-            to: "raphael.palombo@gmx.de",
+            to: "raphael.palombo@mt-ag.com",
             subject: "Hello from Node",
-            text: "Hallo raphael du bist schlau" + info
+            text: "Hallo Raphael hier sind deine Einträge:" + info
         }
 
         transporter.sendMail(mailOptions,(error,info)=>{
@@ -195,9 +203,13 @@ module.exports = {
         })
         
     },
+     // ** Methode: Eintrag aus Dialogflow in DB speichern*
     insert : function(req,session){
+        // Jeder Eintrag wird ein Datum zugeordnet
         console.log("Eintragen_yes")
+         var date = datum.format(new Date(),'DD.MM.YYYY')
          var name 
+         // Der Kontext wird nach dem Namen des Mitarbeiter durchsucht
          var outputContexts = req.body.queryResult.outputContexts
          for ( var i=1; i < outputContexts.length; i++ ) {
             if (outputContexts[i].name == session + "/contexts/name") {
@@ -205,10 +217,11 @@ module.exports = {
               // ... do something useful with "entry" here...
             }
           }
+          // Namen eintragen
         name = "Tester"
-        console.log("Name: "+ name + "JSON"+outputContexts[i].parameters.user)
+        console.log("Name: "+ name )
         console.log("In Insert aus Extra")
-        date = date.format(new Date(),'DD.MM.YYYY')
+       
         var context = session + "/contexts/insert"
         var query
         var values
@@ -226,42 +239,54 @@ module.exports = {
 
             i++
             }
-        console.log("Prams Programmiersprache für den Check" + params.programmiersprache)
 
-        /*
-            -> Level muss angepasst werden
-            -> ID anpassen
-            -> wenn funktioniert auf framework und skill übertragen ACHTUNG!!!!!!!
-        */ 
-
+        // Daten können Eingetragen werden -> nach Tabelle PS, Skills, FW
         if (params.programmiersprache != undefined){
+            console.log("Eintrag für Programmiersprache")
             var typ = "programmiersprache"
             var info = database.database("SELECT mpe_id FROM MTA_PROG_ERFA_ZUO WHERE mpe_id =(SELECT max(mpe_id) FROM MTA_PROG_ERFA_ZUO)")
             console.log("Die ID aus der Datenbankabfrage:" + JSON.stringify(info))
-            var s = info[1]["MPE_ID"] 
-            var id = Number(s) + 1
+            if (info[1] != undefined){
+                var s = info[1]["MPE_ID"]
+                id = Number(s) + 1
+            }else{
+                id = 300
+            }
             console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_prog_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
             values=[id,params.mpe_prog_id,params.mpe_erfa_id,name,date,name,date,'2',params.mpe_mta_id,"Anfang"]
 
         }else if (params.framework != undefined){
+            console.log("Eintrag für Framework")
             var typ = "framework"
             var info = database.database("SELECT mfe_id FROM MTA_FRAM_ERFA_ZUO WHERE mfe_id =(SELECT max(mfe_id) FROM MTA_FRAM_ERFA_ZUO)")
             console.log("Die Info aus der Datenbankabfrage:" + JSON.stringify(info))
-            var s = info[1]["MFE_ID"] 
-            var id = Number(s) + 1
+            var id 
+            if (info[1] != undefined){
+                var s = info[1]["MFE_ID"]
+                id = Number(s) + 1
+            }else{
+                id = 300
+            }
             console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_fram_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
             values=[id,params.mfe_fram_id,params.mfe_erfa_id,name,date,name,date,'2',params.mfe_mta_id,"Anfang"]
 
-        }else if(params.skill != undefined){
-            var typ = "skill"
+        }else if(params.skills != undefined){
+            console.log("Eintrag für Skill")
+            var typ = "skills"
             var info = database.database("SELECT mse_id FROM MTA_SKIL_ERFA_ZUO WHERE mse_id =(SELECT max(mse_id) FROM MTA_SKIL_ERFA_ZUO)")
             console.log("Die Info aus der Datenbankabfrage:" + JSON.stringify(info))
-            var s = info[1]["MSE_ID"] 
-            var id = Number(s) + 1
+            var id 
+            if (info[1] != undefined){
+                var s = info[1]["MSE_ID"]
+                id = Number(s) + 1
+            }else{
+                id = 300
+            }
+
             console.log("Die Info als String: "+s +" Der Eintrag " + Number(s)+" Die neue ID " + Number(id))
             params = tools.preconditions(params,typ)
             query = "Insert into mta_skil_erfa_zuo values (:0, :1, :2, :3, :4, :5, :6, :7, :8, :9)"
@@ -271,9 +296,11 @@ module.exports = {
         console.log("value 0 einzelnes Experiment" + values[0])
         database.insert(query,values)
     },
+    // ** Hier ist die Methode für das Update *
     update: function (req, intent,session){
+        // Datum eintragen
         console.log("In Update")
-        date = date.format(new Date(),'DD.MM.YYYY')
+        var date = datum.format(new Date(),'DD.MM.YYYY')
         var query
         var input
         var params
@@ -283,7 +310,7 @@ module.exports = {
         var auswahl = context.parameters.auswahl
         params = context.parameters.result[auswahl]
 
-        // Input aus der Anfrage ziehen und in EIntrag schreiben
+        // Input aus der Anfrage wird ausgelesen und in Eintrag geschrieben
         if (intent == "update_auswaehlen_kommentar_start"){
             input = req.body.queryResult.queryText
             params.kommentar += "\n Eintrag vom " + date  +": \n "+ input
@@ -294,21 +321,13 @@ module.exports = {
         }
  
         
-        // ACHTUNG! Datum muss noch angepasst werden
-
-        /*
-            -> Level muss angepasst werden
-            -> ID anpassen
-            -> wenn funktioniert auf framework und skill übertragen ACHTUNG!!!!!!!
-        */ 
-
+    // Update wird hier durchgeführt  
     if (params.programmiersprache != undefined){
         var typ = "programmiersprache"
         params = tools.preconditions(params,typ)
         console.log("params nach Preconditions in update "+ JSON.stringify(params))
         query = "UPDATE mta_prog_erfa_zuo SET mpe_erfa_id = :1, mpe_kommentar = :2 where MPE_ID = :3"
         values=[params.mpe_erfa_id,params.kommentar, params.MPE_ID]
-        // Noch nicht fertig!!!!!!!!!
     }else if (params.framework != undefined){
         var typ = "framework"
         params = tools.preconditions(params,typ)
